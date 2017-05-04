@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@drawable/bg"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <EditText
+        android:id="@+id/NickName"
+        android:layout_width="165dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="134dp"
+        android:hint="请输入新昵称"
+        android:background="@drawable/round_rectangle_white"
+        android:imeOptions="flagNoExtractUi"
+        android:inputType="text"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <EditText
+        android:id="@+id/Passwd"
+        android:layout_width="165dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="39dp"
+        android:hint="请输入新密码"
+        android:background="@drawable/round_rectangle_white"
+        android:imeOptions="flagNoExtractUi"
+        android:inputType="textPassword"
+        android:layout_below="@+id/NickName"
+        android:layout_alignLeft="@+id/NickName"
+        android:layout_alignStart="@+id/NickName" />
+
+    <EditText
+        android:id="@+id/ConfirmPasswd"
+        android:layout_width="165dp"
+        android:layout_height="40dp"
+        android:hint="确认密码"
+        android:background="@drawable/round_rectangle_white"
+        android:imeOptions="flagNoExtractUi"
+        android:inputType="textPassword"
+        android:layout_marginTop="40dp"
+        android:layout_below="@+id/Passwd"
+        android:layout_alignLeft="@+id/Passwd"
+        android:layout_alignStart="@+id/Passwd" />
+
+    <Button
+        android:id="@+id/Confirm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:background="@drawable/round_rectangle"
+        android:text="修改"
+        android:layout_below="@+id/ConfirmPasswd"
+        android:layout_alignRight="@+id/ConfirmPasswd"
+        android:layout_alignEnd="@+id/ConfirmPasswd"
+        android:layout_marginTop="43dp" />
+
+    <Button
+        android:id="@+id/Exit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#00000000"
+        android:textSize="15sp"
+        android:textColor="#FFFFFF"
+        android:text="返回"
+        android:layout_alignBaseline="@+id/Confirm"
+        android:layout_alignBottom="@+id/Confirm"
+        android:layout_toLeftOf="@+id/Confirm"
+        android:layout_toStartOf="@+id/Confirm" />
+
+</RelativeLayout>

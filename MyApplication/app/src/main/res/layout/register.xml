@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@drawable/bg"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+
+    <EditText
+        android:id="@+id/StuID"
+        android:layout_width="165dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="97dp"
+        android:maxLength="10"
+        android:hint="学号"
+        android:background="@drawable/round_rectangle_white"
+        android:imeOptions="flagNoExtractUi"
+        android:inputType="number"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <EditText
+        android:id="@+id/NickName"
+        android:layout_width="165dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="41dp"
+        android:hint="昵称"
+        android:background="@drawable/round_rectangle_white"
+        android:imeOptions="flagNoExtractUi"
+        android:inputType="textPersonName"
+        android:layout_below="@+id/StuID"
+        android:layout_alignLeft="@+id/StuID"
+        android:layout_alignStart="@+id/StuID" />
+
+    <EditText
+        android:id="@+id/Passwd"
+        android:layout_width="165dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="40dp"
+        android:hint="密码"
+        android:background="@drawable/round_rectangle_white"
+        android:imeOptions="flagNoExtractUi"
+        android:inputType="textPassword"
+        android:layout_below="@+id/NickName"
+        android:layout_alignLeft="@+id/NickName"
+        android:layout_alignStart="@+id/NickName" />
+
+    <EditText
+        android:id="@+id/ConfirmPasswd"
+        android:layout_width="165dp"
+        android:layout_height="40dp"
+        android:hint="确认密码"
+        android:background="@drawable/round_rectangle_white"
+        android:imeOptions="flagNoExtractUi"
+        android:inputType="textPassword"
+        android:layout_below="@+id/Passwd"
+        android:layout_alignLeft="@+id/Passwd"
+        android:layout_alignStart="@+id/Passwd"
+        android:layout_marginTop="35dp" />
+
+    <Button
+        android:id="@+id/Confirm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="注册"
+        android:textSize="15sp"
+        android:background="@drawable/round_rectangle"
+        android:layout_marginBottom="54dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/Passwd"
+        android:layout_alignEnd="@+id/Passwd" />
+
+    <Button
+        android:id="@+id/Exit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="返回"
+        android:background="#00000000"
+        android:textSize="15sp"
+        android:textColor="#FFFFFF"
+        android:layout_alignBaseline="@+id/Confirm"
+        android:layout_alignBottom="@+id/Confirm"
+        android:layout_alignRight="@+id/Passwd"
+        android:layout_alignEnd="@+id/Passwd"
+        android:layout_marginRight="90dp"
+        android:layout_marginEnd="90dp" />
+
+</RelativeLayout>
