@@ -9,3 +9,5 @@ github command:
 	git add .
 	git commit -m"note"
 	git push origin master
+	
+MyApplication文件夹里面是客户端代码，主要逻辑在app里面
