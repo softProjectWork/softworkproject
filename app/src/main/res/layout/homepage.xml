@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:background="@drawable/bg"
+    android:layout_height="match_parent">
+
+
+    <Button
+        android:id="@+id/CreateRoom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="14dp"
+        android:text="创建房间"
+        android:textSize="30sp"
+        android:background="@drawable/round_rectangle"
+        android:layout_marginTop="136dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:id="@+id/SearchRoom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="14dp"
+        android:text="搜索房间"
+        android:textSize="30sp"
+        android:background="@drawable/round_rectangle"
+        android:layout_centerVertical="true"
+        android:layout_alignLeft="@+id/CreateRoom"
+        android:layout_alignStart="@+id/CreateRoom" />
+
+    <Button
+        android:id="@+id/ModifyInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_marginTop="27dp"
+        android:padding="14dp"
+        android:text="修改个人信息"
+        android:textSize="20sp"
+        android:background="@drawable/round_rectangle"
+        android:layout_below="@+id/SearchRoom"
+        android:layout_alignLeft="@+id/SearchRoom"
+        android:layout_alignStart="@+id/SearchRoom" />
+</RelativeLayout>
