@@ -40,19 +40,6 @@ public class MainActivity extends AppCompatActivity {
 
         Passwd = (EditText)findViewById(R.id.Passwd);
 
-        //Cbl t = new Cbl();
-        //eatbox.setOnCheckedChangeListener(t);
-        //sleepbox.setOnCheckedChangeListener(t);
-        //dotabox.setOnCheckedChangeListener(t);
-
-        //textview = (TextView)findViewById(R.id.textView);
-        //textview.setText("Hello SZY");
-        //textview.setBackgroundColor(Color.BLUE);
-
-        //button = (Button)findViewById(R.id.button);
-        //ButtonListener bl = new ButtonListener();
-        //button.setOnClickListener(bl);
-
     }
 
     class LoginClickListener implements View.OnClickListener {
@@ -85,9 +72,11 @@ public class MainActivity extends AppCompatActivity {
                 urlConn.connect();
 
                 DataOutputStream dop = new DataOutputStream(urlConn.getOutputStream());
-                dop.write(content.getBytes());
+                dop.writeBytes("json="+content);
                 dop.flush();
                 dop.close();
+                urlConn.getInputStream();
+                urlConn.disconnect();
             }
             catch(Exception e){
                 e.printStackTrace();
@@ -104,12 +93,5 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         }
     }
-
-    /*class Cbl implements CompoundButton.OnCheckedChangeListener{
-        @Override
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-        }
-    }*/
 
 }

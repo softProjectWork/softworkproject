@@ -1,7 +1,5 @@
 package com.example.sony.myapplication;
 
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -33,6 +31,8 @@ public class WakeService extends Service{
 
     private Context context;
 
+    private int port;
+
     class MyBinder extends Binder{
 
         public Service getLocalService(){
@@ -48,13 +48,6 @@ public class WakeService extends Service{
     }
 
     @Override
-    public void onCreate(){
-        Log.i(TAG, "LocalService onCreate");
-        super.onCreate();
-
-    }
-
-    @Override
     public void onDestroy(){
         Log.i(TAG, "LocalService onDestroy");
         super.onDestroy();
@@ -66,6 +59,9 @@ public class WakeService extends Service{
     public int onStartCommand(Intent intent, int flags, int startId){
         Log.i(TAG, "LocalService onStartCommand");
         Log.i(TAG, "action is "+intent.getAction());
+
+        Bundle bundle = intent.getExtras();
+        port = bundle.getInt("port");
 
         Thread thread = getThread();
         if(thread.isAlive()){
@@ -101,26 +97,28 @@ public class WakeService extends Service{
             Intent it;
             Bundle bundle;
             switch(type) {
-                case "room_ready":
-                    int stuId = jsonData.getInt("stuId");
-                    String nickName = jsonData.getString("nickName");
-                    int order = jsonData.getInt("order");
+                case "another_player_ready":
+                    int num = jsonData.getInt("ready_num");
 
-                    it = new Intent(this,RoomActivity.class);
+                    it = new Intent();
                     bundle = new Bundle();
-                    bundle.putInt("stuId",stuId);
-                    bundle.putString("nickName",nickName);
-                    bundle.putInt("order",order);
-                    bundle.putInt("startGame",0);
+                    bundle.putString("type","another_player_ready");
+                    bundle.putInt("ready_num",num);
+
+                    for(int i = 1; i <= num; i++) {
+                        String nickName = jsonData.getString("nickName"+i);
+                        bundle.putString(("nickName"+i),nickName);
+                    }
+
                     it.putExtras(bundle);
-                    startActivity(it);
+                    sendBroadcast(it);
                     break;
-                case "room_full":
-                    it = new Intent(this,RoomActivity.class);
+                case "can_start_game":
+                    it = new Intent();
                     bundle = new Bundle();
-                    bundle.putInt("startGame",1);
+                    bundle.putString("type","can_start_game");
                     it.putExtras(bundle);
-                    startActivity(it);
+                    sendBroadcast(it);
                     break;
 
                 default:break;

@@ -23,6 +23,8 @@
         <activity android:name=".RegisterActivity"></activity>
         <activity android:name=".RoomActivity"></activity>
         <activity android:name=".SearchRoomActivity"></activity>
+        <activity android:name=".GameActivity"></activity>
+        <service android:name=".WakeService"></service>
     </application>
 
 </manifest>
