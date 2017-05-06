@@ -13,10 +13,8 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -25,13 +23,13 @@ import com.example.sony.myapplication.util.getHttpResponseBody;
 public class RoomActivity extends AppCompatActivity {
     private Button Exit;
     private Button Ready;
+    private TextView roomInfo;
 
-    private int my_StuId;
+    private int stuId;
     private String nickName;
-    private int score;
-
-    private int roomID;    //用户进入房间后，未点击“准备”前保存房间ID，点击准备后发送HTTTP请求房间端口号时使用
+    private int roomId;    //用户进入房间后保存房间ID，在点击“准备”发送HTTTP请求时使用
     private String roomName;
+
     private int port;
 
     private MyReceiver receiver;
@@ -49,21 +47,22 @@ public class RoomActivity extends AppCompatActivity {
         ReadyClickListener rcl = new ReadyClickListener();
         Ready.setOnClickListener(rcl);
 
-        //保存自己的学号、昵称、成绩
-        my_StuId = savedInstanceState.getInt("stuId");
-        nickName = savedInstanceState.getString("nickName");
-        score = savedInstanceState.getInt("score");
+        roomInfo = (TextView)findViewById(R.id.roomInfo);
 
+        stuId = savedInstanceState.getInt("stuId");
+        nickName = savedInstanceState.getString("nickName");
+        roomId = savedInstanceState.getInt("roomId");
+        roomName = savedInstanceState.getString("roomName");
+
+        roomInfo.setText(roomId+"房间\n"+roomName);
     }
 
-    class ReadyClickListener implements View.OnClickListener {
+    private class ReadyClickListener implements View.OnClickListener {
         public void onClick(View V) {
-
             //请求该房间的端口号
             JSONObject param = new JSONObject();
             try {
-                param.put("type","get_port");
-                param.put("roomId",roomID);
+                param.put("roomId",roomId);
             }
             catch(JSONException e) {
                 e.printStackTrace();
@@ -71,8 +70,8 @@ public class RoomActivity extends AppCompatActivity {
             String content = String.valueOf(param);
 
             //将客户端包装的JSON数据发送到服务器
-            String strUrl = "127.0.0.0.1";
-            URL url = null;
+            String strUrl = "162.105.175.115:8005/clientCall/login.php";
+            URL url;
             try {
                 url = new URL(strUrl);
                 HttpURLConnection urlConn = (HttpURLConnection)url.openConnection();
@@ -90,12 +89,24 @@ public class RoomActivity extends AppCompatActivity {
                 dop.flush();
                 dop.close();
 
+                /*//测试用
+                BufferedReader bf = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
+                String res = "";
+                String readLine = null;
+                while((readLine = bf.readLine()) != null) {
+                    res += readLine;
+                }
+                bf.close();
+                Log.i("log_in",("---------------------------------------------------------\n"+res));
+                urlConn.disconnect();
+                //到此为止*/
+
                 InputStream is = urlConn.getInputStream();
+                urlConn.disconnect();
+
                 byte[] responseBody = getHttpResponseBody.GetHttpResponseBody(is);
                 JSONObject ret = new JSONObject(new String(responseBody));
                 port = ret.getInt("port");
-
-                urlConn.disconnect();
 
             }
             catch(Exception e){
@@ -108,63 +119,25 @@ public class RoomActivity extends AppCompatActivity {
             bundle.putInt("port",port);
             it.putExtras(bundle);
             startService(it);   //启动服务
+
             //注册广播接收器
             receiver = new MyReceiver();
             IntentFilter filter = new IntentFilter();
             filter.addAction("com.example.sony.application.WakeService");
             RoomActivity.this.registerReceiver(receiver,filter);
 
-            //将自己的学号发送过去
-            //包装成JSON格式
-            param = new JSONObject();
-            try {
-                param.put("type","room_ready");
-                param.put("stuId", my_StuId);
-            }
-            catch(JSONException e) {
-                e.printStackTrace();
-            }
-            content = String.valueOf(param);
-
-            //将客户端包装的JSON数据发送到服务器
-            strUrl = "127.0.0.0.1";
-            url = null;
-            try {
-                url = new URL(strUrl);
-                HttpURLConnection urlConn = (HttpURLConnection)url.openConnection();
-                urlConn.setDoInput(true);
-                urlConn.setDoOutput(true);
-                urlConn.setRequestMethod("POST");
-                urlConn.setUseCaches(false);
-                urlConn.setRequestProperty("Content_Type","application/json");
-                urlConn.setRequestProperty("CharSet","utf-8");
-
-                urlConn.connect();
-
-                DataOutputStream dop = new DataOutputStream(urlConn.getOutputStream());
-                dop.writeBytes("json="+content);
-                dop.flush();
-                dop.close();
-                urlConn.getInputStream();
-                urlConn.disconnect();
-            }
-            catch(Exception e){
-                e.printStackTrace();
-            }
-
             //设置退出按钮为不可点击
             Exit.setEnabled(false);
         }
     }
 
-    class ExitClickListener implements View.OnClickListener {
+    private class ExitClickListener implements View.OnClickListener {
         public void onClick(View V) {
 
             //包装成JSON格式
             JSONObject param = new JSONObject();
             try {
-                param.put("type","room_exit");
-                param.put("stuId", my_StuId);
+                param.put("roomId",roomId);
             }
             catch(JSONException e) {
                 e.printStackTrace();
@@ -172,8 +145,8 @@ public class RoomActivity extends AppCompatActivity {
             final String content = String.valueOf(param);
 
             //将客户端包装的JSON数据发送到服务器
-            String strUrl = "127.0.0.0.1";
-            URL url = null;
+            String strUrl = "162.105.175.115:8005/clientCall/login.php";
+            URL url;
             try {
                 url = new URL(strUrl);
                 HttpURLConnection urlConn = (HttpURLConnection)url.openConnection();
@@ -190,6 +163,19 @@ public class RoomActivity extends AppCompatActivity {
                 dop.writeBytes("json="+content);
                 dop.flush();
                 dop.close();
+
+                /*//测试用
+                BufferedReader bf = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
+                String res = "";
+                String readLine = null;
+                while((readLine = bf.readLine()) != null) {
+                    res += readLine;
+                }
+                bf.close();
+                Log.i("log_in",("---------------------------------------------------------\n"+res));
+                urlConn.disconnect();
+                //到此为止*/
+
                 urlConn.getInputStream();
                 urlConn.disconnect();
             }
@@ -209,7 +195,7 @@ public class RoomActivity extends AppCompatActivity {
             if(bundle != null) {
                 String type = bundle.getString("type");
 
-                if(type == "another_player_ready") {    //有新玩家准备，刷新页面
+                if(type.equals("another_player_ready")) {    //有新玩家准备，刷新页面
                     int num = bundle.getInt("ready_num");
                     //刷新已准备玩家昵称
                     TextView tmp = null;
@@ -247,9 +233,9 @@ public class RoomActivity extends AppCompatActivity {
                         tmp.setText(player_nickName);
                     }
                 }
-                if(type == "can_start_game") {  //人数已满，开始游戏
+                if(type.equals("can_start_game")) {  //人数已满，开始游戏
                     Intent it = new Intent(RoomActivity.this,GameActivity.class);
-                    bundle = new Bundle();
+                    Bundle b = new Bundle();
                     for(int i = 1; i <= 9; i++) {   //记录所有玩家昵称，给游戏界面初始化使用
                         TextView tmp = null;
                         switch(i) {
@@ -281,13 +267,12 @@ public class RoomActivity extends AppCompatActivity {
                                 tmp = (TextView) findViewById(R.id.textView9);
                                 break;
                         }
-                        bundle.putString(("Textview"+i),tmp.getText().toString());
+                        b.putString(("textView"+i),tmp.getText().toString());
                     }
-                    bundle.putInt("stuId",my_StuId);
-                    bundle.putString("nickName",nickName);
-                    bundle.putInt("score",score);
-
-                    it.putExtras(bundle);
+                    b.putInt("stuId",stuId);
+                    b.putString("nickName",nickName);
+                    b.putString("role",bundle.getString("role"));
+                    it.putExtras(b);
                     startActivity(it);
                 }
             }
