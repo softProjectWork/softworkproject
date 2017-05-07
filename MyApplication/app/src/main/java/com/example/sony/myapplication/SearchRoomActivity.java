@@ -25,6 +25,7 @@ public class SearchRoomActivity extends AppCompatActivity {
 
     private int stuId;
     private String nickName;
+    private String token;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +46,7 @@ public class SearchRoomActivity extends AppCompatActivity {
 
         stuId = savedInstanceState.getInt("stuId");
         nickName = savedInstanceState.getString("nickName");
+        token = savedInstanceState.getString("token");
     }
 
     private class searchViewListener implements SearchView.OnQueryTextListener {
@@ -55,6 +57,7 @@ public class SearchRoomActivity extends AppCompatActivity {
             try {
                 param.put("stuId", stuId);
                 param.put("roomId",Integer.valueOf(query));
+                param.put("token",token);
             }
             catch(JSONException e) {
                 e.printStackTrace();
@@ -106,6 +109,7 @@ public class SearchRoomActivity extends AppCompatActivity {
                     bundle.putString("nickName",nickName);
                     bundle.putInt("roomId",Integer.valueOf(query));
                     bundle.putString("roomName",ret.getString("roomName"));
+                    bundle.putInt("port",ret.getInt("port"));
                     intent.putExtras(bundle);
                     startActivity(intent);
                 }
@@ -134,6 +138,7 @@ public class SearchRoomActivity extends AppCompatActivity {
             JSONObject param = new JSONObject();
             try {
                 param.put("stuId", stuId);
+                param.put("token",token);
             }
             catch(JSONException e) {
                 e.printStackTrace();
@@ -185,6 +190,7 @@ public class SearchRoomActivity extends AppCompatActivity {
                     bundle.putString("nickName",nickName);
                     bundle.putInt("roomId",ret.getInt("roomId"));
                     bundle.putString("roomName",ret.getString("roomName"));
+                    bundle.putInt("port",ret.getInt("port"));
                     intent.putExtras(bundle);
                     startActivity(intent);
                 }

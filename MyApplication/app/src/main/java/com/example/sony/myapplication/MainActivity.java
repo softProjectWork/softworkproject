@@ -96,11 +96,13 @@ public class MainActivity extends AppCompatActivity {
                 byte[] responseBody = getHttpResponseBody.GetHttpResponseBody(is);
                 JSONObject ret = new JSONObject(new String(responseBody));
                 int status = ret.getInt("login_status");
+
                 if(status == 1) {
                     Intent intent = new Intent(MainActivity.this,HomePageActivity.class);
                     Bundle bundle = new Bundle();
                     bundle.putInt("stuId",Integer.valueOf(stuId.getText().toString()));
                     bundle.putString("nickName",ret.getString("nickName"));
+                    bundle.putString("token",ret.getString("token"));
                     intent.putExtras(bundle);
                     startActivity(intent);
                 }

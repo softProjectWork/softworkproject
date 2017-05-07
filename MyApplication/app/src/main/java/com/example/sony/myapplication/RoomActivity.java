@@ -53,13 +53,30 @@ public class RoomActivity extends AppCompatActivity {
         nickName = savedInstanceState.getString("nickName");
         roomId = savedInstanceState.getInt("roomId");
         roomName = savedInstanceState.getString("roomName");
+        port = savedInstanceState.getInt("port");
 
         roomInfo.setText(roomId+"房间\n"+roomName);
+
+        //开启和该房间端口的长连接
+        Intent it = new Intent(RoomActivity.this,WakeService.class);
+        Bundle bundle = new Bundle();
+        bundle.putInt("port",port);
+        it.putExtras(bundle);
+        startService(it);   //启动服务
+
+        //注册广播接收器
+        receiver = new MyReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("com.example.sony.application.WakeService");
+        RoomActivity.this.registerReceiver(receiver,filter);
+
+        //设置退出按钮为不可点击
+        Exit.setEnabled(false);
     }
 
     private class ReadyClickListener implements View.OnClickListener {
         public void onClick(View V) {
-            //请求该房间的端口号
+            /*//请求该房间的端口号
             JSONObject param = new JSONObject();
             try {
                 param.put("roomId",roomId);
@@ -89,7 +106,7 @@ public class RoomActivity extends AppCompatActivity {
                 dop.flush();
                 dop.close();
 
-                /*//测试用
+                //测试用
                 BufferedReader bf = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
                 String res = "";
                 String readLine = null;
@@ -99,7 +116,7 @@ public class RoomActivity extends AppCompatActivity {
                 bf.close();
                 Log.i("log_in",("---------------------------------------------------------\n"+res));
                 urlConn.disconnect();
-                //到此为止*/
+                //到此为止
 
                 InputStream is = urlConn.getInputStream();
                 urlConn.disconnect();
@@ -111,30 +128,14 @@ public class RoomActivity extends AppCompatActivity {
             }
             catch(Exception e){
                 e.printStackTrace();
-            }
-
-            //开启和该房间端口的长连接
-            Intent it = new Intent(RoomActivity.this,WakeService.class);
-            Bundle bundle = new Bundle();
-            bundle.putInt("port",port);
-            it.putExtras(bundle);
-            startService(it);   //启动服务
-
-            //注册广播接收器
-            receiver = new MyReceiver();
-            IntentFilter filter = new IntentFilter();
-            filter.addAction("com.example.sony.application.WakeService");
-            RoomActivity.this.registerReceiver(receiver,filter);
-
-            //设置退出按钮为不可点击
-            Exit.setEnabled(false);
+            }*/
         }
     }
 
     private class ExitClickListener implements View.OnClickListener {
         public void onClick(View V) {
 
-            //包装成JSON格式
+        /*    //包装成JSON格式
             JSONObject param = new JSONObject();
             try {
                 param.put("roomId",roomId);
@@ -164,7 +165,7 @@ public class RoomActivity extends AppCompatActivity {
                 dop.flush();
                 dop.close();
 
-                /*//测试用
+                //测试用
                 BufferedReader bf = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
                 String res = "";
                 String readLine = null;
@@ -174,7 +175,7 @@ public class RoomActivity extends AppCompatActivity {
                 bf.close();
                 Log.i("log_in",("---------------------------------------------------------\n"+res));
                 urlConn.disconnect();
-                //到此为止*/
+                //到此为止
 
                 urlConn.getInputStream();
                 urlConn.disconnect();
@@ -184,7 +185,7 @@ public class RoomActivity extends AppCompatActivity {
             }
 
             Intent intent = new Intent(RoomActivity.this,HomePageActivity.class);
-            startActivity(intent);
+            startActivity(intent);*/
         }
     }
 

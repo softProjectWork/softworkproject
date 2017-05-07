@@ -52,8 +52,7 @@ public class EndActivity extends AppCompatActivity{
         }
 
         result = (TextView)findViewById(R.id.result);
-        result.setText(savedInstanceState.getString("winner")+"胜利");
-
+        result.setText(savedInstanceState.getString("winner") + "胜利");
         scoreView = (TextView)findViewById(R.id.scoreView);
         scoreView.setText("积分"+savedInstanceState.getInt("score"));
 

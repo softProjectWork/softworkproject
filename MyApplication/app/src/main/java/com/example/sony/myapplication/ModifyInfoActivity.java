@@ -25,6 +25,7 @@ public class ModifyInfoActivity extends AppCompatActivity {
 
     private int stuId;
     private String nickName;
+    private String token;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +42,7 @@ public class ModifyInfoActivity extends AppCompatActivity {
 
         stuId = savedInstanceState.getInt("stuId");
         nickName = savedInstanceState.getString("nickName");
+        token = savedInstanceState.getString("token");
 
     }
 
@@ -72,6 +74,7 @@ public class ModifyInfoActivity extends AppCompatActivity {
                     param.put("stuId", Integer.valueOf(stuId));
                     param.put("passWd",passWd);
                     param.put("nickName",NickName);
+                    param.put("token",token);
                 }
                 catch(JSONException e) {
                     e.printStackTrace();

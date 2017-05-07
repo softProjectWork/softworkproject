@@ -24,6 +24,7 @@ public class CreateRoomActivity extends AppCompatActivity {
 
     private int stuId;
     private String nickName;
+    private String token;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +41,7 @@ public class CreateRoomActivity extends AppCompatActivity {
 
         stuId = savedInstanceState.getInt("stuId");
         nickName = savedInstanceState.getString("nickName");
+        token = savedInstanceState.getString("token");
 
     }
 
@@ -57,6 +59,7 @@ public class CreateRoomActivity extends AppCompatActivity {
                 try {
                     param.put("stuId",stuId);
                     param.put("roomName",roomName);
+                    param.put("token",token);
                 }
                 catch(JSONException e) {
                     e.printStackTrace();
@@ -107,6 +110,7 @@ public class CreateRoomActivity extends AppCompatActivity {
                         bundle.putInt("stuId",stuId);
                         bundle.putString("nickName",nickName);
                         bundle.putInt("roomId",ret.getInt("roomId"));
+                        bundle.putInt("port",ret.getInt("port"));
                         bundle.putString("roomName",roomName);
                         intent.putExtras(bundle);
                         startActivity(intent);

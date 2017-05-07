@@ -444,7 +444,7 @@ public class GameActivity extends AppCompatActivity{
                     imageButton8.setEnabled(true);
                     imageButton9.setEnabled(true);
                 }
-                if(type.equals("you_are_died")) {
+                if(type.equals("you_are_died") && role != null) {
                     role = null;
                     imageButton1.setEnabled(false);
                     imageButton2.setEnabled(false);
@@ -469,7 +469,7 @@ public class GameActivity extends AppCompatActivity{
                     imageButton9.setEnabled(true);
                     pass.setEnabled(true);
                 }
-                if(type.equals("day_vote_die")) {
+                if(type.equals("voted_to_die")) {
                     for(int i = 1; i <= 9; i++) {
                         int status = bundle.getInt("player"+i+"_status");
                         if(status == 0) {

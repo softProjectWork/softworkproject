@@ -85,8 +85,10 @@
         android:layout_height="65dp"
         app:srcCompat="@drawable/player7"
         android:layout_alignTop="@+id/imageButton3"
-        android:layout_toRightOf="@+id/textView6"
-        android:layout_toEndOf="@+id/textView6" />
+        android:layout_alignBottom="@+id/imageButton3"
+        android:layout_alignLeft="@+id/imageButton6"
+        android:layout_alignStart="@+id/imageButton6"
+         />
 
     <ImageButton
         android:id="@+id/imageButton8"
@@ -111,7 +113,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/imageButton1"
-        android:textColor="#FFFFFF"
+        android:textColor="#FFFF33"
         android:layout_alignLeft="@+id/imageButton1"
         android:layout_alignStart="@+id/imageButton1" />
 
@@ -119,7 +121,7 @@
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#FFFFFF"
+        android:textColor="#FFFF33"
         android:layout_alignLeft="@+id/imageButton2"
         android:layout_alignStart="@+id/imageButton2"
         android:layout_below="@+id/imageButton2" />
@@ -128,7 +130,7 @@
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#FFFFFF"
+        android:textColor="#FFFF33"
         android:layout_alignLeft="@+id/imageButton3"
         android:layout_alignStart="@+id/imageButton3"
         android:layout_below="@+id/imageButton3" />
@@ -137,7 +139,7 @@
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#FFFFFF"
+        android:textColor="#FFFF33"
         android:layout_alignLeft="@+id/imageButton4"
         android:layout_alignStart="@+id/imageButton4"
         android:layout_below="@+id/imageButton4" />
@@ -146,7 +148,7 @@
         android:id="@+id/textView5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#FFFFFF"
+        android:textColor="#FFFF33"
         android:layout_alignLeft="@+id/imageButton5"
         android:layout_alignStart="@+id/imageButton5"
         android:layout_below="@+id/imageButton5" />
@@ -155,16 +157,16 @@
         android:id="@+id/textView6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#FFFFFF"
+        android:textColor="#FFFF33"
+        android:layout_below="@+id/imageButton6"
         android:layout_alignLeft="@+id/imageButton6"
-        android:layout_alignStart="@+id/imageButton6"
-        android:layout_below="@+id/imageButton6" />
+        android:layout_alignStart="@+id/imageButton6" />
 
     <TextView
         android:id="@+id/textView7"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#FFFFFF"
+        android:textColor="#FFFF33"
         android:layout_below="@+id/imageButton7"
         android:layout_alignLeft="@+id/imageButton7"
         android:layout_alignStart="@+id/imageButton7" />
@@ -173,7 +175,7 @@
         android:id="@+id/textView8"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#FFFFFF"
+        android:textColor="#FFFF33"
         android:layout_below="@+id/imageButton8"
         android:layout_alignLeft="@+id/imageButton8"
         android:layout_alignStart="@+id/imageButton8" />
@@ -182,7 +184,7 @@
         android:id="@+id/textView9"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#FFFFFF"
+        android:textColor="#FFFF33"
         android:layout_below="@+id/imageButton9"
         android:layout_alignLeft="@+id/imageButton9"
         android:layout_alignStart="@+id/imageButton9" />

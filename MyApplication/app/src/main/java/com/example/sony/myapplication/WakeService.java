@@ -252,10 +252,10 @@ public class WakeService extends Service{
                     it.putExtras(bundle);
                     sendBroadcast(it);
                     break;
-                case "day_vote_die":
+                case "voted_to_die":
                     it = new Intent();
                     bundle = new Bundle();
-                    bundle.putString("type","day_vote_die");
+                    bundle.putString("type","voted_to_die");
                     for(int i = 1; i <= 9; i++) {
                         bundle.putInt("player"+i+"_status",jsonData.getInt("player"+i+"_status"));
                     }

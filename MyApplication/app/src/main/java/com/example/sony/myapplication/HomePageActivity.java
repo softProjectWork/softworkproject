@@ -16,6 +16,7 @@ public class HomePageActivity extends AppCompatActivity{
 
     private int stuId;
     private String nickName;
+    private String token;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +38,7 @@ public class HomePageActivity extends AppCompatActivity{
         nickNameView = (TextView)findViewById(R.id.nickNameView);
 
         stuId = savedInstanceState.getInt("stuId");
+        token = savedInstanceState.getString("token");
         nickName = savedInstanceState.getString("nickName");
         nickNameView.setText(nickName);
     }
@@ -47,6 +49,7 @@ public class HomePageActivity extends AppCompatActivity{
             Bundle bundle = new Bundle();
             bundle.putInt("stuId",stuId);
             bundle.putString("nickName",nickName);
+            bundle.putString("token",token);
             intent.putExtras(bundle);
             startActivity(intent);
         }
@@ -58,6 +61,7 @@ public class HomePageActivity extends AppCompatActivity{
             Bundle bundle = new Bundle();
             bundle.putInt("stuId",stuId);
             bundle.putString("nickName",nickName);
+            bundle.putString("token",token);
             intent.putExtras(bundle);
             startActivity(intent);
         }
@@ -69,6 +73,7 @@ public class HomePageActivity extends AppCompatActivity{
             Bundle bundle = new Bundle();
             bundle.putInt("stuId",stuId);
             bundle.putString("nickName",nickName);
+            bundle.putString("token",token);
             intent.putExtras(bundle);
             startActivity(intent);
         }
