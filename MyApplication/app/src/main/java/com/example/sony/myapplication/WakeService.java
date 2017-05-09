@@ -38,6 +38,10 @@ public class WakeService extends Service{
     private boolean yes_or_no = false;
     private int witch_choice;
 
+    private int stuId;
+    private String nickName;
+    private int order;
+
 
     class MyBinder extends Binder{
 
@@ -77,6 +81,9 @@ public class WakeService extends Service{
 
         Bundle bundle = intent.getExtras();
         port = bundle.getInt("port");
+        stuId = bundle.getInt("stuId");
+        nickName = bundle.getString("nickName");
+        order = bundle.getInt("order");
 
         //注册广播接收器
         receiver = new MyReceiver();
@@ -395,6 +402,33 @@ public class WakeService extends Service{
             catch (IOException e) {
                 e.printStackTrace();
             }
+
+            //建立连接后，立马发送stuId、nickName、order
+            if (socket.isConnected()){
+                OutputStream os = null;
+                try {
+                    os = socket.getOutputStream();
+                    JSONObject js = new JSONObject();
+                    js.put("stuId",stuId);
+                    js.put("nickName",nickName);
+                    js.put("order",order);
+                    byte[] sendp = js.toString().getBytes();
+                    os.write(sendp);
+                    os.flush();
+                }
+                catch(Exception e) {
+                    e.printStackTrace();
+                    if(os != null) {
+                        try {
+                            os.close();
+                        }
+                        catch(IOException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                }
+            }
+
         }
         return socket;
     }

@@ -110,6 +110,7 @@ public class SearchRoomActivity extends AppCompatActivity {
                     bundle.putInt("roomId",Integer.valueOf(query));
                     bundle.putString("roomName",ret.getString("roomName"));
                     bundle.putInt("port",ret.getInt("port"));
+                    bundle.putInt("order",ret.getInt("order"));
                     intent.putExtras(bundle);
                     startActivity(intent);
                 }
@@ -191,6 +192,7 @@ public class SearchRoomActivity extends AppCompatActivity {
                     bundle.putInt("roomId",ret.getInt("roomId"));
                     bundle.putString("roomName",ret.getString("roomName"));
                     bundle.putInt("port",ret.getInt("port"));
+                    bundle.putInt("order",ret.getInt("order"));
                     intent.putExtras(bundle);
                     startActivity(intent);
                 }

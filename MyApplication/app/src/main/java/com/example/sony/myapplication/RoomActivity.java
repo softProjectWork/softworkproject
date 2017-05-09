@@ -31,6 +31,7 @@ public class RoomActivity extends AppCompatActivity {
     private String roomName;
 
     private int port;
+    private int order;
 
     private MyReceiver receiver;
 
@@ -54,12 +55,16 @@ public class RoomActivity extends AppCompatActivity {
         roomId = savedInstanceState.getInt("roomId");
         roomName = savedInstanceState.getString("roomName");
         port = savedInstanceState.getInt("port");
+        order = savedInstanceState.getInt("order");
 
         roomInfo.setText(roomId+"房间\n"+roomName);
 
         //开启和该房间端口的长连接
         Intent it = new Intent(RoomActivity.this,WakeService.class);
         Bundle bundle = new Bundle();
+        bundle.putInt("stuId",stuId);
+        bundle.putString("nickName",nickName);
+        bundle.putInt("order",order);
         bundle.putInt("port",port);
         it.putExtras(bundle);
         startService(it);   //启动服务

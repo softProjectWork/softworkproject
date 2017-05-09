@@ -112,6 +112,7 @@ public class CreateRoomActivity extends AppCompatActivity {
                         bundle.putInt("roomId",ret.getInt("roomId"));
                         bundle.putInt("port",ret.getInt("port"));
                         bundle.putString("roomName",roomName);
+                        bundle.putInt("order",ret.getInt("order"));
                         intent.putExtras(bundle);
                         startActivity(intent);
                     }

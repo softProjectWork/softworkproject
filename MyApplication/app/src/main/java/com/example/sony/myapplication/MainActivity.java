@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,8 +14,10 @@ import com.example.sony.myapplication.util.getHttpResponseBody;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -61,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
             //将客户端包装的JSON数据发送到服务器
             String strUrl = "162.105.175.115:8005/clientCall/login.php";
             URL url;
-            try {
+            try {System.out.println("reach1");
                 url = new URL(strUrl);
                 HttpURLConnection urlConn = (HttpURLConnection)url.openConnection();
                 urlConn.setDoInput(true);
@@ -77,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
                 dop.writeBytes("json="+content);
                 dop.flush();
                 dop.close();
+                System.out.println("reach2");
 
                 /*//测试用
                 BufferedReader bf = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
@@ -86,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                     res += readLine;
                 }
                 bf.close();
-                Log.i("log_in",("---------------------------------------------------------\n"+res));
+                System.out.println("---------------------------------------------------------\n"+res);
                 urlConn.disconnect();
                 //到此为止*/
 
