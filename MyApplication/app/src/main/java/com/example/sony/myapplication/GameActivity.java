@@ -17,6 +17,8 @@ import android.widget.TextView;
 import com.example.sony.myapplication.util.AmrAudioEncoder;
 import com.example.sony.myapplication.util.AmrAudioPlayer;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -158,6 +160,29 @@ public class GameActivity extends AppCompatActivity{
             audioSocket = new Socket(ip,audio_port);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        //建立连接后，立马发送stuId、nickName、order
+        if (audioSocket.isConnected()) {
+            OutputStream os = null;
+            try {
+                os = audioSocket.getOutputStream();
+                JSONObject js = new JSONObject();
+                js.put("order", savedInstanceState.getInt("order"));
+                byte[] sendp = js.toString().getBytes();
+                os.write(sendp);
+                os.flush();
+                os.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+                if (os != null) {
+                    try {
+                        os.close();
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+            }
         }
 
         //注册广播接收器

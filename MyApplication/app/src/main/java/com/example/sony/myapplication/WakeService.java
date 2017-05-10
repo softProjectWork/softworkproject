@@ -451,6 +451,7 @@ public class WakeService extends Service{
                     byte[] sendp = js.toString().getBytes();
                     os.write(sendp);
                     os.flush();
+                    os.close();
                 }
                 catch(Exception e) {
                     e.printStackTrace();

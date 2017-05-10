@@ -282,6 +282,7 @@ public class RoomActivity extends AppCompatActivity {
                     b.putString("nickName",nickName);
                     b.putString("role",bundle.getString("role"));
                     b.putInt("audio_port",audio_port);
+                    b.putInt("order",order);
                     it.putExtras(b);
                     startActivity(it);
                 }
