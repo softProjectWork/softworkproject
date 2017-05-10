@@ -10,7 +10,7 @@
 <br /> 还没写退房时这里可以清光全部房间和玩家，避免bug。
 
 ## 完全写好并验证过的功能(接口按照《致后端》v2.0)
-登录 login.php
-<br /> 建房 create.php
-<br /> 随机加入 join.php
+登录 162.105.175.115/backend/clientCall/login.php
+<br /> 建房 .../create.php
+<br /> 随机加入 .../join.php
 
