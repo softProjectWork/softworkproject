@@ -38,6 +38,8 @@ public class WakeService extends Service{
     private boolean yes_or_no = false;
     private int witch_choice;
 
+    private boolean speak_over = false;
+
     private int stuId;
     private String nickName;
     private int order;
@@ -126,14 +128,11 @@ public class WakeService extends Service{
             Bundle bundle;
             switch(type) {
                 case "another_player_ready":
-                    int num = jsonData.getInt("ready_num");
-
                     it = new Intent();
                     bundle = new Bundle();
                     bundle.putString("type","another_player_ready");
-                    bundle.putInt("ready_num",num);
 
-                    for(int i = 1; i <= num; i++) {
+                    for(int i = 1; i <= 9; i++) {
                         String nickName = jsonData.getString("nickName"+i);
                         bundle.putString(("nickName"+i),nickName);
                     }
@@ -221,13 +220,6 @@ public class WakeService extends Service{
                     it.putExtras(bundle);
                     sendBroadcast(it);
                     break;
-                case "witch_end":
-                    it = new Intent();
-                    bundle = new Bundle();
-                    bundle.putString("type","witch_end");
-                    it.putExtras(bundle);
-                    sendBroadcast(it);
-                    break;
                 case "switch_to_day":
                     it = new Intent();
                     bundle = new Bundle();
@@ -249,6 +241,27 @@ public class WakeService extends Service{
                     it = new Intent();
                     bundle = new Bundle();
                     bundle.putString("type","you_are_died");
+                    it.putExtras(bundle);
+                    sendBroadcast(it);
+                    break;
+                case "your_turn_to_speak":
+                    it = new Intent();
+                    bundle = new Bundle();
+                    bundle.putString("type","your_turn_to_speak");
+                    it.putExtras(bundle);
+                    sendBroadcast(it);
+                    break;
+                case "you_can_listen":
+                    it = new Intent();
+                    bundle = new Bundle();
+                    bundle.putString("type","you_can_listen");
+                    it.putExtras(bundle);
+                    sendBroadcast(it);
+                    break;
+                case "you_have_heard_out":
+                    it = new Intent();
+                    bundle = new Bundle();
+                    bundle.putString("type","you_have_heard_out");
                     it.putExtras(bundle);
                     sendBroadcast(it);
                     break;
@@ -377,6 +390,29 @@ public class WakeService extends Service{
                     }
                 }
 
+                if(speak_over) {
+                    try {
+                        os = socket.getOutputStream();
+                        JSONObject js = new JSONObject();
+                        js.put("type","speak_over");
+                        byte[] sendp = js.toString().getBytes();
+                        os.write(sendp);
+                        os.flush();
+                        speak_over = false;
+                    }
+                    catch(Exception e) {
+                        e.printStackTrace();
+                        if(os != null) {
+                            try {
+                                os.close();
+                            }
+                            catch(IOException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                    }
+                }
+
             }
 
         }
@@ -446,6 +482,9 @@ public class WakeService extends Service{
                 if(type.equals("yes_or_no")) {
                     yes_or_no = true;
                     witch_choice = bundle.getInt("witch_choice");
+                }
+                if(type.equals("speak_over")) {
+                    speak_over = true;
                 }
             }
         }

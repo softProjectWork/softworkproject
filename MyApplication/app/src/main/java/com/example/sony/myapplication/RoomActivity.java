@@ -14,8 +14,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.Socket;
 import java.net.URL;
 
 import com.example.sony.myapplication.util.getHttpResponseBody;
@@ -31,6 +33,7 @@ public class RoomActivity extends AppCompatActivity {
     private String roomName;
 
     private int port;
+    private int audio_port;
     private int order;
 
     private MyReceiver receiver;
@@ -55,6 +58,7 @@ public class RoomActivity extends AppCompatActivity {
         roomId = savedInstanceState.getInt("roomId");
         roomName = savedInstanceState.getString("roomName");
         port = savedInstanceState.getInt("port");
+        audio_port = savedInstanceState.getInt("audio_port");
         order = savedInstanceState.getInt("order");
 
         roomInfo.setText(roomId+"房间\n"+roomName);
@@ -202,10 +206,9 @@ public class RoomActivity extends AppCompatActivity {
                 String type = bundle.getString("type");
 
                 if(type.equals("another_player_ready")) {    //有新玩家准备，刷新页面
-                    int num = bundle.getInt("ready_num");
                     //刷新已准备玩家昵称
                     TextView tmp = null;
-                    for (int i = 1; i <= num; i++) {
+                    for (int i = 1; i <= 9; i++) {
                         String player_nickName = bundle.getString("nickName" + i);
                         switch (i) {
                             case 1:
@@ -278,6 +281,7 @@ public class RoomActivity extends AppCompatActivity {
                     b.putInt("stuId",stuId);
                     b.putString("nickName",nickName);
                     b.putString("role",bundle.getString("role"));
+                    b.putInt("audio_port",audio_port);
                     it.putExtras(b);
                     startActivity(it);
                 }

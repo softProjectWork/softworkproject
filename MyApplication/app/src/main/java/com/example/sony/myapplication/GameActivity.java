@@ -14,11 +14,20 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.example.sony.myapplication.util.AmrAudioEncoder;
+import com.example.sony.myapplication.util.AmrAudioPlayer;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.Socket;
+
 public class GameActivity extends AppCompatActivity{
 
     private int stuId;
     private String nickName;
     private String role;
+
+    private boolean multipleClick = false;
 
     private MyReceiver receiver;
 
@@ -45,6 +54,12 @@ public class GameActivity extends AppCompatActivity{
 
     private Button pass;
 
+    private AmrAudioEncoder amrEncoder;
+    private AmrAudioPlayer audioPlayer;
+
+    private int audio_port;
+    private Socket audioSocket;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +69,7 @@ public class GameActivity extends AppCompatActivity{
         stuId = savedInstanceState.getInt("stuId");
         nickName = savedInstanceState.getString("nickName");
         role = savedInstanceState.getString("role");
+        audio_port = savedInstanceState.getInt("audio_port");
 
         new AlertDialog.Builder(this)
                 .setMessage("你的身份是"+role)
@@ -97,7 +113,9 @@ public class GameActivity extends AppCompatActivity{
         }
 
         textView = (TextView)findViewById(R.id.textView);
+
         pass = (Button)findViewById(R.id.pass);
+        pass.setOnClickListener(new PassClickListener());
         pass.setEnabled(false);
 
         //绑定图标监听器
@@ -131,15 +149,16 @@ public class GameActivity extends AppCompatActivity{
         imageButton8.setOnClickListener(icl8);
         imageButton9.setOnClickListener(icl9);
 
-        imageButton1.setEnabled(false);
-        imageButton2.setEnabled(false);
-        imageButton3.setEnabled(false);
-        imageButton4.setEnabled(false);
-        imageButton5.setEnabled(false);
-        imageButton6.setEnabled(false);
-        imageButton7.setEnabled(false);
-        imageButton8.setEnabled(false);
-        imageButton9.setEnabled(false);
+        setAllImageButtonOff();
+
+        //开启语音socket通道
+        String ip = "192.168.1.100";
+        audioSocket = null;
+        try {
+            audioSocket = new Socket(ip,audio_port);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         //注册广播接收器
         receiver = new MyReceiver();
@@ -153,104 +172,152 @@ public class GameActivity extends AppCompatActivity{
     protected void onDestroy() {
         super.onDestroy();
         stopService(new Intent(this,WakeService.class));
+
+        if(audioSocket != null) {
+            try {
+                audioSocket.close();
+            }
+            catch(Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            if (amrEncoder != null) {
+                amrEncoder.stop();
+            }
+            if (audioPlayer != null) {
+                audioPlayer.stop();
+            }
+        } catch (Exception e) {
+        }
+    }
+
+    public void setAllImageButtonOn() {
+        imageButton1.setEnabled(true);
+        imageButton2.setEnabled(true);
+        imageButton3.setEnabled(true);
+        imageButton4.setEnabled(true);
+        imageButton5.setEnabled(true);
+        imageButton6.setEnabled(true);
+        imageButton7.setEnabled(true);
+        imageButton8.setEnabled(true);
+        imageButton9.setEnabled(true);
+    }
+
+    public void setAllImageButtonOff() {
+        imageButton1.setEnabled(false);
+        imageButton2.setEnabled(false);
+        imageButton3.setEnabled(false);
+        imageButton4.setEnabled(false);
+        imageButton5.setEnabled(false);
+        imageButton6.setEnabled(false);
+        imageButton7.setEnabled(false);
+        imageButton8.setEnabled(false);
+        imageButton9.setEnabled(false);
+    }
+
+    public void sendOrder(int i) {
+        Intent it = new Intent();
+        Bundle bundle = new Bundle();
+        bundle.putString("type","choose_player");
+        bundle.putInt("chosen_order",i);
+        it.putExtras(bundle);
+        sendBroadcast(it);
+        if(!multipleClick)
+            setAllImageButtonOff();
     }
 
     private class Image1ClickListener implements View.OnClickListener {
         public void onClick(View V) {
-            Intent it = new Intent();
-            Bundle bundle = new Bundle();
-            bundle.putString("type","choose_player");
-            bundle.putInt("chosen_order",1);
-            it.putExtras(bundle);
-            sendBroadcast(it);
+            sendOrder(1);
         }
     }
 
     private class Image2ClickListener implements View.OnClickListener {
         public void onClick(View V) {
-            Intent it = new Intent();
-            Bundle bundle = new Bundle();
-            bundle.putString("type","choose_player");
-            bundle.putInt("chosen_order",2);
-            it.putExtras(bundle);
-            sendBroadcast(it);
+            sendOrder(2);
         }
     }
 
     private class Image3ClickListener implements View.OnClickListener {
         public void onClick(View V) {
-            Intent it = new Intent();
-            Bundle bundle = new Bundle();
-            bundle.putString("type","choose_player");
-            bundle.putInt("chosen_order",3);
-            it.putExtras(bundle);
-            sendBroadcast(it);
+            sendOrder(3);
         }
     }
 
     private class Image4ClickListener implements View.OnClickListener {
         public void onClick(View V) {
-            Intent it = new Intent();
-            Bundle bundle = new Bundle();
-            bundle.putString("type","choose_player");
-            bundle.putInt("chosen_order",4);
-            it.putExtras(bundle);
-            sendBroadcast(it);
+            sendOrder(4);
         }
     }
 
     private class Image5ClickListener implements View.OnClickListener {
         public void onClick(View V) {
-            Intent it = new Intent();
-            Bundle bundle = new Bundle();
-            bundle.putString("type","choose_player");
-            bundle.putInt("chosen_order",5);
-            it.putExtras(bundle);
-            sendBroadcast(it);
+            sendOrder(5);
         }
     }
 
     private class Image6ClickListener implements View.OnClickListener {
         public void onClick(View V) {
-            Intent it = new Intent();
-            Bundle bundle = new Bundle();
-            bundle.putString("type","choose_player");
-            bundle.putInt("chosen_order",6);
-            it.putExtras(bundle);
-            sendBroadcast(it);
+            sendOrder(6);
         }
     }
 
     private class Image7ClickListener implements View.OnClickListener {
         public void onClick(View V) {
-            Intent it = new Intent();
-            Bundle bundle = new Bundle();
-            bundle.putString("type","choose_player");
-            bundle.putInt("chosen_order",7);
-            it.putExtras(bundle);
-            sendBroadcast(it);
+            sendOrder(7);
         }
     }
 
     private class Image8ClickListener implements View.OnClickListener {
         public void onClick(View V) {
-            Intent it = new Intent();
-            Bundle bundle = new Bundle();
-            bundle.putString("type","choose_player");
-            bundle.putInt("chosen_order",8);
-            it.putExtras(bundle);
-            sendBroadcast(it);
+            sendOrder(8);
         }
     }
 
     private class Image9ClickListener implements View.OnClickListener {
         public void onClick(View V) {
+            sendOrder(9);
+        }
+    }
+
+    private class PassClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            pass.setEnabled(false);
+            stopEncodeAudio();
+
+            //用原来的socket发送“讲话完毕”信息
             Intent it = new Intent();
             Bundle bundle = new Bundle();
-            bundle.putString("type","choose_player");
-            bundle.putInt("chosen_order",9);
+            bundle.putString("type","speak_over");
             it.putExtras(bundle);
             sendBroadcast(it);
+        }
+    }
+
+    private void startEncodeAudio() {
+        amrEncoder = AmrAudioEncoder.getArmAudioEncoderInstance();
+        amrEncoder.initArmAudioEncoder(this, audioSocket);
+        amrEncoder.start();
+    }
+
+    private void stopEncodeAudio() {
+        if (amrEncoder != null) {
+            amrEncoder.stop();
+        }
+    }
+
+    private void startPlayAudio() {
+        audioPlayer = AmrAudioPlayer.getAmrAudioPlayerInstance();
+        audioPlayer.initAmrAudioPlayer(this, audioSocket);
+        audioPlayer.start();
+    }
+
+    private void stopPlayAudio() {
+        if (audioPlayer != null) {
+            audioPlayer.stop();
         }
     }
 
@@ -263,33 +330,21 @@ public class GameActivity extends AppCompatActivity{
                 if(type.equals("sys_info")) {
                     textView.setText(bundle.getString("sys_info"));
                 }
-                if( (type.equals("prophet_start") && role.equals("prophet")) || (type.equals("werewolf_start") && role.equals("werewolf")) ) {
-                    imageButton1.setEnabled(true);
-                    imageButton2.setEnabled(true);
-                    imageButton3.setEnabled(true);
-                    imageButton4.setEnabled(true);
-                    imageButton5.setEnabled(true);
-                    imageButton6.setEnabled(true);
-                    imageButton7.setEnabled(true);
-                    imageButton8.setEnabled(true);
-                    imageButton9.setEnabled(true);
+                if( (type.equals("prophet_start") && role.equals("prophet")) ) {
+                    setAllImageButtonOn();
                 }
                 if(type.equals("prophet_end") && role.equals("prophet")) {
-                    imageButton1.setEnabled(false);
-                    imageButton2.setEnabled(false);
-                    imageButton3.setEnabled(false);
-                    imageButton4.setEnabled(false);
-                    imageButton5.setEnabled(false);
-                    imageButton6.setEnabled(false);
-                    imageButton7.setEnabled(false);
-                    imageButton8.setEnabled(false);
-                    imageButton9.setEnabled(false);
+                    setAllImageButtonOff();
 
                     String str = bundle.getString("prophet_identify_role");
                     new AlertDialog.Builder(GameActivity.this)
                             .setMessage("你要验证的人是"+str)
                             .setPositiveButton("确定",null)
                             .show();
+                }
+                if(type.equals("werewolf_start") && role.equals("werewolf")) {
+                    setAllImageButtonOn();
+                    multipleClick = true;
                 }
                 if (type.equals("kill_people_refresh") && role.equals("werewolf")) {
                     for(int i = 1; i <= 9; i++) {
@@ -334,16 +389,9 @@ public class GameActivity extends AppCompatActivity{
                         }
                     }
                 }
-                if( (type.equals("werewolf_end") && role.equals("werewolf")) || ( type.equals("witch_end") && role.equals("witch") )) {
-                    imageButton1.setEnabled(false);
-                    imageButton2.setEnabled(false);
-                    imageButton3.setEnabled(false);
-                    imageButton4.setEnabled(false);
-                    imageButton5.setEnabled(false);
-                    imageButton6.setEnabled(false);
-                    imageButton7.setEnabled(false);
-                    imageButton8.setEnabled(false);
-                    imageButton9.setEnabled(false);
+                if( (type.equals("werewolf_end") && role.equals("werewolf")) ) {
+                    setAllImageButtonOff();
+                    multipleClick = false;
                 }
                 if(type.equals("witch_save_start") && role.equals("witch")) {
                     int killed_player_order = bundle.getInt("killed_player_order");
@@ -366,15 +414,7 @@ public class GameActivity extends AppCompatActivity{
                             .setMessage("请选择一个玩家下毒！")
                             .setPositiveButton("确定",null)
                             .show();
-                    imageButton1.setEnabled(true);
-                    imageButton2.setEnabled(true);
-                    imageButton3.setEnabled(true);
-                    imageButton4.setEnabled(true);
-                    imageButton5.setEnabled(true);
-                    imageButton6.setEnabled(true);
-                    imageButton7.setEnabled(true);
-                    imageButton8.setEnabled(true);
-                    imageButton9.setEnabled(true);
+                    setAllImageButtonOn();
                 }
                 if(type.equals("switch_to_day")) {
                     getWindow().setBackgroundDrawableResource(R.drawable.day);
@@ -415,16 +455,7 @@ public class GameActivity extends AppCompatActivity{
                             tmp.setBackgroundResource(R.drawable.player_die);
                         }
                     }
-
-                    imageButton1.setEnabled(false);
-                    imageButton2.setEnabled(false);
-                    imageButton3.setEnabled(false);
-                    imageButton4.setEnabled(false);
-                    imageButton5.setEnabled(false);
-                    imageButton6.setEnabled(false);
-                    imageButton7.setEnabled(false);
-                    imageButton8.setEnabled(false);
-                    imageButton9.setEnabled(false);
+                    setAllImageButtonOff();
 
                     pass.setText("过了");
                     pass.setBackgroundResource(R.drawable.round_rectangle);
@@ -434,40 +465,28 @@ public class GameActivity extends AppCompatActivity{
                             .setMessage("请选择一个玩家带走")
                             .setPositiveButton("确定",null)
                             .show();
-                    imageButton1.setEnabled(true);
-                    imageButton2.setEnabled(true);
-                    imageButton3.setEnabled(true);
-                    imageButton4.setEnabled(true);
-                    imageButton5.setEnabled(true);
-                    imageButton6.setEnabled(true);
-                    imageButton7.setEnabled(true);
-                    imageButton8.setEnabled(true);
-                    imageButton9.setEnabled(true);
+                    setAllImageButtonOn();
                 }
                 if(type.equals("you_are_died") && role != null) {
                     role = null;
-                    imageButton1.setEnabled(false);
-                    imageButton2.setEnabled(false);
-                    imageButton3.setEnabled(false);
-                    imageButton4.setEnabled(false);
-                    imageButton5.setEnabled(false);
-                    imageButton6.setEnabled(false);
-                    imageButton7.setEnabled(false);
-                    imageButton8.setEnabled(false);
-                    imageButton9.setEnabled(false);
+                    setAllImageButtonOff();
                     pass.setEnabled(false);
                 }
-                if(type.equals("vote_start") && role != null) {
-                    imageButton1.setEnabled(true);
-                    imageButton2.setEnabled(true);
-                    imageButton3.setEnabled(true);
-                    imageButton4.setEnabled(true);
-                    imageButton5.setEnabled(true);
-                    imageButton6.setEnabled(true);
-                    imageButton7.setEnabled(true);
-                    imageButton8.setEnabled(true);
-                    imageButton9.setEnabled(true);
+                if(type.equals("your_turn_to_speak") && role != null) {
                     pass.setEnabled(true);
+                    startEncodeAudio();
+                }
+                if(type.equals("your_can_listen") ) {
+                    pass.setEnabled(false);
+                    startPlayAudio();
+                }
+                if(type.equals("you_have_heard_out")) {
+                    pass.setEnabled(false);
+                    stopPlayAudio();
+                }
+                if(type.equals("vote_start") && role != null) {
+                    setAllImageButtonOn();
+                    pass.setEnabled(false);
                 }
                 if(type.equals("voted_to_die")) {
                     for(int i = 1; i <= 9; i++) {
@@ -512,15 +531,7 @@ public class GameActivity extends AppCompatActivity{
                     pass.setEnabled(false);
                     pass.setText("");
                     pass.setBackgroundColor(0x0000FF00);
-                    imageButton1.setEnabled(false);
-                    imageButton2.setEnabled(false);
-                    imageButton3.setEnabled(false);
-                    imageButton4.setEnabled(false);
-                    imageButton5.setEnabled(false);
-                    imageButton6.setEnabled(false);
-                    imageButton7.setEnabled(false);
-                    imageButton8.setEnabled(false);
-                    imageButton9.setEnabled(false);
+                    setAllImageButtonOff();
                 }
                 if(type.equals("game_over")) {
                     Intent it = new Intent(GameActivity.this,EndActivity.class);
