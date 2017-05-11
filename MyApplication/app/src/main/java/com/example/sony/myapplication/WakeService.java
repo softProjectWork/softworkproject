@@ -20,6 +20,8 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+
+
 public class WakeService extends Service{
 
     private static Binder mBinder;
@@ -27,6 +29,7 @@ public class WakeService extends Service{
     private Thread mThread = null;
     private boolean runFlag = true;
     private static Socket socket=null;
+    private final int PLAYER_NUM = 4;
     //private Context context;
 
     private int port;
@@ -83,7 +86,9 @@ public class WakeService extends Service{
 
         Bundle bundle = intent.getExtras();
         port = bundle.getInt("port");
+        Log.d("port", String.valueOf(port));
         stuId = bundle.getInt("stuId");
+        Log.d("stuId", String.valueOf(stuId));
         nickName = bundle.getString("nickName");
         order = bundle.getInt("order");
 
@@ -112,7 +117,11 @@ public class WakeService extends Service{
                 @Override
                 public void run() {
                     //请求服务器
-                    doRequest();
+                    try {
+                        doRequest();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
                 }
             });
@@ -132,7 +141,7 @@ public class WakeService extends Service{
                     bundle = new Bundle();
                     bundle.putString("type","another_player_ready");
 
-                    for(int i = 1; i <= 9; i++) {
+                    for(int i = 1; i <= PLAYER_NUM; i++) {
                         String nickName = jsonData.getString("nickName"+i);
                         bundle.putString(("nickName"+i),nickName);
                     }
@@ -185,7 +194,7 @@ public class WakeService extends Service{
                     it = new Intent();
                     bundle = new Bundle();
                     bundle.putString("type","kill_people_refresh");
-                    for(int i = 1; i <= 9; i++) {
+                    for(int i = 1; i <= PLAYER_NUM; i++) {
                         bundle.putInt("player"+i+"_killed_cnt",jsonData.getInt("player"+i+"_killed_cnt"));
                     }
                     it.putExtras(bundle);
@@ -224,7 +233,7 @@ public class WakeService extends Service{
                     it = new Intent();
                     bundle = new Bundle();
                     bundle.putString("type","switch_to_day");
-                    for(int i = 1; i <= 9; i++) {
+                    for(int i = 1; i <= PLAYER_NUM; i++) {
                         bundle.putInt("player"+i+"_status",jsonData.getInt("player"+i+"_status"));
                     }
                     it.putExtras(bundle);
@@ -276,7 +285,7 @@ public class WakeService extends Service{
                     it = new Intent();
                     bundle = new Bundle();
                     bundle.putString("type","voted_to_die");
-                    for(int i = 1; i <= 9; i++) {
+                    for(int i = 1; i <= PLAYER_NUM; i++) {
                         bundle.putInt("player"+i+"_status",jsonData.getInt("player"+i+"_status"));
                     }
                     it.putExtras(bundle);
@@ -295,7 +304,7 @@ public class WakeService extends Service{
                     bundle.putString("type","game_over");
                     bundle.putString("winner",jsonData.getString("winner"));
                     bundle.putInt("score",jsonData.getInt("score"));
-                    for(int i = 1; i <= 9; i++) {
+                    for(int i = 1; i <= PLAYER_NUM; i++) {
                         bundle.putString("player"+i+"_role",jsonData.getString("player"+i+"_role"));
                     }
                     it.putExtras(bundle);
@@ -313,7 +322,7 @@ public class WakeService extends Service{
 
     //网络请求
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    private void doRequest(){
+    private void doRequest() throws IOException {
         Socket socket = getSocket();
 
         if (socket.isConnected()){
@@ -324,7 +333,7 @@ public class WakeService extends Service{
             while (runFlag) {
                 try {
                     is = socket.getInputStream();
-                    byte[] resp = new byte[100];
+                    byte[] resp = new byte[1000];
                     is.read(resp);
                     String res = new String(resp);
                     Log.i(TAG, res);
@@ -426,9 +435,9 @@ public class WakeService extends Service{
         return context;
     }*/
 
-    private Socket getSocket(){
+    private Socket getSocket() throws IOException {
         if(socket==null){
-            String ip = "192.168.1.100";
+            String ip = "162.105.175.115";
             try {
                 socket=new Socket(ip,port);
             }
@@ -448,21 +457,20 @@ public class WakeService extends Service{
                     js.put("stuId",stuId);
                     js.put("nickName",nickName);
                     js.put("order",order);
+                    Log.d("----------",js.toString());
                     byte[] sendp = js.toString().getBytes();
                     os.write(sendp);
                     os.flush();
-                    os.close();
                 }
                 catch(Exception e) {
                     e.printStackTrace();
-                    if(os != null) {
-                        try {
-                            os.close();
-                        }
-                        catch(IOException e1) {
-                            e1.printStackTrace();
-                        }
-                    }
+
+//                } finally {
+//                    try {
+//                        os.close();
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
                 }
             }
 

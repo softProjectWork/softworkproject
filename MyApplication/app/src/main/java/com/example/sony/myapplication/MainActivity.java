@@ -10,8 +10,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.example.sony.myapplication.util.getHttpResponseBody;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -55,10 +53,12 @@ public class MainActivity extends AppCompatActivity {
     private class LoginClickListener implements View.OnClickListener {
         public void onClick(View V) {
 
+            final int stu_id = Integer.valueOf(stuId.getText().toString());
+
             //将用户名和密码包装成JSON格式
             JSONObject param = new JSONObject();
             try {
-                param.put("stuId", Integer.valueOf(stuId.getText().toString()));
+                param.put("stuId", stu_id);
                 param.put("passWd",passWd.getText().toString());
             }
             catch(JSONException e) {
@@ -70,7 +70,8 @@ public class MainActivity extends AppCompatActivity {
             new AsyncTask<Void, Void, String>() {
                 @Override
                 protected String doInBackground(Void... params) {
-                    String strUrl = "162.105.175.115/backend/clientCall/login.php";
+
+                    String strUrl = "http://162.105.175.115:8005/clientCall/login.php";
                     URL url = null;
                     try {
                         url = new URL(strUrl);
@@ -100,24 +101,35 @@ public class MainActivity extends AppCompatActivity {
 
                         OutputStream out = urlConn.getOutputStream();
                         BufferedWriter dop = new BufferedWriter(new OutputStreamWriter(out) );
-                        //dop.writeBytes("json="+content);
-                        dop.write(content);
+                        dop.write("json=" + content);
+
+                        Log.d("request",content.toString());
+
                         dop.flush();
                         out.close();
                         dop.close();
 
-                        /*InputStream is = urlConn.getInputStream();
-                        urlConn.disconnect();
+                        InputStream is = urlConn.getInputStream();
+                        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                        String str;
+                        StringBuilder buffer = new StringBuilder();
+                        if ((str = br.readLine()) != null) {
+                            buffer.append(str);
+                        }
+                        is.close();
+                        br.close();
+
+                        Log.d("response",buffer.toString());
 
                         if (urlConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                            byte[] responseBody = getHttpResponseBody.GetHttpResponseBody(is);
-                            JSONObject ret = new JSONObject(new String(responseBody));
-
+                            JSONObject ret = new JSONObject(buffer.toString());
                             Intent intent = new Intent(MainActivity.this,HomePageActivity.class);
                             Bundle bundle = new Bundle();
-                            bundle.putInt("stuId",Integer.valueOf(stuId.getText().toString()));
+                            Log.d("aa","bb");
+                            bundle.putInt("stuId",stu_id);
                             bundle.putString("nickName",ret.getString("nickName"));
                             bundle.putString("token",ret.getString("token"));
+                            Log.d("bundle",bundle.toString());
                             intent.putExtras(bundle);
                             startActivity(intent);
                         }
@@ -126,33 +138,18 @@ public class MainActivity extends AppCompatActivity {
                                     .setMessage("登录失败，学号或密码错误")
                                     .setPositiveButton("确定",null)
                                     .show();
-                        }*/
-
-                        if (urlConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                            InputStream in = urlConn.getInputStream();
-                            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-                            String str;
-                            StringBuilder buffer = new StringBuilder();
-                            if ((str = br.readLine()) != null) {
-                                buffer.append(str);
-                            }
-                            in.close();
-                            br.close();
-
-                            JSONObject rjson = new JSONObject(buffer.toString());
-                            Log.d("response", "rjson = " + rjson);
-                            Log.d("note", "返回成功");
                         }
+
                     }
                     catch (Exception e){
                         e.printStackTrace();
-                    }
-                    finally {
-                        assert urlConn != null;
-                        urlConn.disconnect();
-                    }
+                    }finally {
+                       assert urlConn != null;
+                       urlConn.disconnect();
+                   }
                     return null;
                 }
+
             }.execute();
 
         }

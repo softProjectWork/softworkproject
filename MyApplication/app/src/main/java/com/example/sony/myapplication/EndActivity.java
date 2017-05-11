@@ -8,6 +8,10 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class EndActivity extends AppCompatActivity{
+    private int stuId;
+    private String nickName;
+    private String token;
+
     private TextView result;
     private TextView scoreView;
     private Button exit;
@@ -51,10 +55,14 @@ public class EndActivity extends AppCompatActivity{
             tmp.setText(savedInstanceState.getString("textView"+i)+"\n"+savedInstanceState.getString("player"+i+"_role"));
         }
 
+        stuId = this.getIntent().getExtras().getInt("stuId");
+        nickName = this.getIntent().getExtras().getString("nickName");
+        token = this.getIntent().getExtras().getString("token");
+
         result = (TextView)findViewById(R.id.result);
-        result.setText(savedInstanceState.getString("winner") + "胜利");
+        result.setText(this.getIntent().getExtras().getString("winner") + "胜利");
         scoreView = (TextView)findViewById(R.id.scoreView);
-        scoreView.setText("积分"+savedInstanceState.getInt("score"));
+        scoreView.setText("积分"+this.getIntent().getExtras().getInt("score"));
 
         exit = (Button)findViewById(R.id.exit);
         exitClickListener ecl = new exitClickListener();
@@ -65,8 +73,13 @@ public class EndActivity extends AppCompatActivity{
     private class exitClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            Intent it = new Intent(EndActivity.this,HomePageActivity.class);
-            startActivity(it);
+            Intent intent = new Intent(EndActivity.this,HomePageActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putInt("stuId",stuId);
+            bundle.putString("nickName",nickName);
+            bundle.putString("token",token);
+            intent.putExtras(bundle);
+            startActivity(intent);
         }
     }
 

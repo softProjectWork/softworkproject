@@ -5,12 +5,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
+import android.widget.SearchView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-
-import com.example.sony.myapplication.util.getHttpResponseBody;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,18 +46,18 @@ public class SearchRoomActivity extends AppCompatActivity {
         ExitClickListener ecl = new ExitClickListener();
         Exit.setOnClickListener(ecl);
 
-        searchView = (SearchView)findViewById(R.id.searchView);
+        searchView = (SearchView) findViewById(R.id.searchView);
         searchViewListener svl = new searchViewListener();
         searchView.setOnQueryTextListener(svl);
 
-        stuId = savedInstanceState.getInt("stuId");
-        nickName = savedInstanceState.getString("nickName");
-        token = savedInstanceState.getString("token");
+        stuId = this.getIntent().getExtras().getInt("stuId");
+        nickName = this.getIntent().getExtras().getString("nickName");
+        token = this.getIntent().getExtras().getString("token");
     }
 
     private class searchViewListener implements SearchView.OnQueryTextListener {
         @Override
-        public boolean onQueryTextSubmit(String query) {
+        public boolean onQueryTextSubmit(final String query) {
 
             JSONObject param = new JSONObject();
             try {
@@ -76,7 +74,7 @@ public class SearchRoomActivity extends AppCompatActivity {
             new AsyncTask<Void, Void, String>() {
                 @Override
                 protected String doInBackground(Void... params) {
-                    String strUrl = "162.105.175.115/backend/clientCall/login.php";
+                    String strUrl = "http://162.105.175.115:8005/clientCall/login.php";
                     URL url = null;
                     try {
                         url = new URL(strUrl);
@@ -106,21 +104,34 @@ public class SearchRoomActivity extends AppCompatActivity {
 
                         OutputStream out = urlConn.getOutputStream();
                         BufferedWriter dop = new BufferedWriter(new OutputStreamWriter(out) );
-                        //dop.writeBytes("json="+content);
-                        dop.write(content);
+                        dop.write("json=" + content);
+
+                        Log.d("request",content.toString());
+
                         dop.flush();
                         out.close();
                         dop.close();
 
-                        /*InputStream is = urlConn.getInputStream();
-                        urlConn.disconnect();
+                        InputStream is = urlConn.getInputStream();
+                        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                        String str;
+                        StringBuilder buffer = new StringBuilder();
+                        if ((str = br.readLine()) != null) {
+                            buffer.append(str);
+                        }
+                        is.close();
+                        br.close();
+
+                        Log.d("response",buffer.toString());
+
                         if (urlConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                            byte[] responseBody = getHttpResponseBody.GetHttpResponseBody(is);
-                            JSONObject ret = new JSONObject(new String(responseBody));
+                            JSONObject ret = new JSONObject(buffer.toString());
+
                             Intent intent = new Intent(SearchRoomActivity.this,RoomActivity.class);
                             Bundle bundle = new Bundle();
                             bundle.putInt("stuId",stuId);
                             bundle.putString("nickName",nickName);
+                            bundle.putString("token",token);
                             bundle.putInt("roomId",Integer.valueOf(query));
                             bundle.putString("roomName",ret.getString("roomName"));
                             bundle.putInt("port",ret.getInt("port"));
@@ -134,23 +145,8 @@ public class SearchRoomActivity extends AppCompatActivity {
                                     .setMessage("加入房间失败，房间已满或不存在")
                                     .setPositiveButton("确定",null)
                                     .show();
-                        }*/
-
-                        if (urlConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                            InputStream in = urlConn.getInputStream();
-                            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-                            String str;
-                            StringBuilder buffer = new StringBuilder();
-                            if ((str = br.readLine()) != null) {
-                                buffer.append(str);
-                            }
-                            in.close();
-                            br.close();
-
-                            JSONObject rjson = new JSONObject(buffer.toString());
-                            Log.d("response", "rjson = " + rjson);
-                            Log.d("note", "返回成功");
                         }
+
                     }
                     catch (Exception e){
                         e.printStackTrace();
@@ -189,7 +185,7 @@ public class SearchRoomActivity extends AppCompatActivity {
             new AsyncTask<Void, Void, String>() {
                 @Override
                 protected String doInBackground(Void... params) {
-                    String strUrl = "162.105.175.115/backend/clientCall/join.php";
+                    String strUrl = "http://162.105.175.115:8005/clientCall/join.php";
                     URL url = null;
                     try {
                         url = new URL(strUrl);
@@ -219,21 +215,34 @@ public class SearchRoomActivity extends AppCompatActivity {
 
                         OutputStream out = urlConn.getOutputStream();
                         BufferedWriter dop = new BufferedWriter(new OutputStreamWriter(out) );
-                        //dop.writeBytes("json="+content);
-                        dop.write(content);
+                        dop.write("json=" + content);
+
+                        Log.d("request",content.toString());
+
                         dop.flush();
                         out.close();
                         dop.close();
 
-                        /*InputStream is = urlConn.getInputStream();
-                        urlConn.disconnect();
+                        InputStream is = urlConn.getInputStream();
+                        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                        String str;
+                        StringBuilder buffer = new StringBuilder();
+                        if ((str = br.readLine()) != null) {
+                            buffer.append(str);
+                        }
+                        is.close();
+                        br.close();
+
+                        Log.d("response",buffer.toString());
+
                         if (urlConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                            byte[] responseBody = getHttpResponseBody.GetHttpResponseBody(is);
-                            JSONObject ret = new JSONObject(new String(responseBody));
+                            JSONObject ret = new JSONObject(buffer.toString());
+
                             Intent intent = new Intent(SearchRoomActivity.this,RoomActivity.class);
                             Bundle bundle = new Bundle();
                             bundle.putInt("stuId",stuId);
                             bundle.putString("nickName",nickName);
+                            bundle.putString("token",token);
                             bundle.putInt("roomId",ret.getInt("roomId"));
                             bundle.putString("roomName",ret.getString("roomName"));
                             bundle.putInt("port",ret.getInt("port"));
@@ -247,23 +256,8 @@ public class SearchRoomActivity extends AppCompatActivity {
                                     .setMessage("没有可用房间")
                                     .setPositiveButton("确定",null)
                                     .show();
-                        }*/
-
-                        if (urlConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                            InputStream in = urlConn.getInputStream();
-                            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-                            String str;
-                            StringBuilder buffer = new StringBuilder();
-                            if ((str = br.readLine()) != null) {
-                                buffer.append(str);
-                            }
-                            in.close();
-                            br.close();
-
-                            JSONObject rjson = new JSONObject(buffer.toString());
-                            Log.d("response", "rjson = " + rjson);
-                            Log.d("note", "返回成功");
                         }
+
                     }
                     catch (Exception e){
                         e.printStackTrace();
@@ -283,6 +277,11 @@ public class SearchRoomActivity extends AppCompatActivity {
     private class ExitClickListener implements View.OnClickListener {
         public void onClick(View V) {
             Intent intent = new Intent(SearchRoomActivity.this,HomePageActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putInt("stuId",stuId);
+            bundle.putString("nickName",nickName);
+            bundle.putString("token",token);
+            intent.putExtras(bundle);
             startActivity(intent);
         }
     }

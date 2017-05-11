@@ -10,8 +10,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.example.sony.myapplication.util.getHttpResponseBody;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -48,15 +46,20 @@ public class ModifyInfoActivity extends AppCompatActivity {
         ExitClickListener ecl = new ExitClickListener();
         Exit.setOnClickListener(ecl);
 
-        stuId = savedInstanceState.getInt("stuId");
-        nickName = savedInstanceState.getString("nickName");
-        token = savedInstanceState.getString("token");
+        stuId = this.getIntent().getExtras().getInt("stuId");
+        nickName = this.getIntent().getExtras().getString("nickName");
+        token = this.getIntent().getExtras().getString("token");
 
     }
 
     private class ExitClickListener implements View.OnClickListener {
         public void onClick(View V) {
             Intent intent = new Intent(ModifyInfoActivity.this,HomePageActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putInt("stuId",stuId);
+            bundle.putString("nickName",nickName);
+            bundle.putString("token",token);
+            intent.putExtras(bundle);
             startActivity(intent);
         }
     }
@@ -93,7 +96,7 @@ public class ModifyInfoActivity extends AppCompatActivity {
                 new AsyncTask<Void, Void, String>() {
                     @Override
                     protected String doInBackground(Void... params) {
-                        String strUrl = "162.105.175.115/backend/clientCall/login.php";
+                        String strUrl = "http://162.105.175.115:8005/clientCall/login.php";
                         URL url = null;
                         try {
                             url = new URL(strUrl);
@@ -123,14 +126,26 @@ public class ModifyInfoActivity extends AppCompatActivity {
 
                             OutputStream out = urlConn.getOutputStream();
                             BufferedWriter dop = new BufferedWriter(new OutputStreamWriter(out) );
-                            //dop.writeBytes("json="+content);
-                            dop.write(content);
+                            dop.write("json=" + content);
+
+                            Log.d("request",content.toString());
+
                             dop.flush();
                             out.close();
                             dop.close();
 
-                            /*InputStream is = urlConn.getInputStream();
-                            urlConn.disconnect();
+                            InputStream is = urlConn.getInputStream();
+                            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                            String str;
+                            StringBuilder buffer = new StringBuilder();
+                            if ((str = br.readLine()) != null) {
+                                buffer.append(str);
+                            }
+                            is.close();
+                            br.close();
+
+                            Log.d("response",buffer.toString());
+
                             if (urlConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
                                 new AlertDialog.Builder(ModifyInfoActivity.this)
                                         .setMessage("修改成功")
@@ -142,23 +157,8 @@ public class ModifyInfoActivity extends AppCompatActivity {
                                         .setMessage("修改失败")
                                         .setPositiveButton("确定",null)
                                         .show();
-                            }*/
-
-                            if (urlConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                                InputStream in = urlConn.getInputStream();
-                                BufferedReader br = new BufferedReader(new InputStreamReader(in));
-                                String str;
-                                StringBuilder buffer = new StringBuilder();
-                                if ((str = br.readLine()) != null) {
-                                    buffer.append(str);
-                                }
-                                in.close();
-                                br.close();
-
-                                JSONObject rjson = new JSONObject(buffer.toString());
-                                Log.d("response", "rjson = " + rjson);
-                                Log.d("note", "返回成功");
                             }
+
                         }
                         catch (Exception e){
                             e.printStackTrace();

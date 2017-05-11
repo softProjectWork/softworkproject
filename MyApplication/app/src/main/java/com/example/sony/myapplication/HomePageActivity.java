@@ -37,9 +37,9 @@ public class HomePageActivity extends AppCompatActivity{
 
         nickNameView = (TextView)findViewById(R.id.nickNameView);
 
-        stuId = savedInstanceState.getInt("stuId");
-        token = savedInstanceState.getString("token");
-        nickName = savedInstanceState.getString("nickName");
+        stuId = this.getIntent().getExtras().getInt("stuId");
+        token = this.getIntent().getExtras().getString("token");
+        nickName = this.getIntent().getExtras().getString("nickName");
         nickNameView.setText(nickName);
     }
 

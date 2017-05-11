@@ -25,8 +25,11 @@ import java.net.Socket;
 
 public class GameActivity extends AppCompatActivity{
 
+    private final int PLAYER_NUM = 4;
+
     private int stuId;
     private String nickName;
+    private String token;
     private String role;
 
     private boolean multipleClick = false;
@@ -68,10 +71,11 @@ public class GameActivity extends AppCompatActivity{
         setContentView(R.layout.game);
 
         //保存自己的学号、昵称、角色，并弹窗显示角色
-        stuId = savedInstanceState.getInt("stuId");
-        nickName = savedInstanceState.getString("nickName");
-        role = savedInstanceState.getString("role");
-        audio_port = savedInstanceState.getInt("audio_port");
+        stuId = this.getIntent().getExtras().getInt("stuId");
+        nickName = this.getIntent().getExtras().getString("nickName");
+        token = this.getIntent().getExtras().getString("token");
+        role = this.getIntent().getExtras().getString("role");
+        audio_port = this.getIntent().getExtras().getInt("audio_port");
 
         new AlertDialog.Builder(this)
                 .setMessage("你的身份是"+role)
@@ -79,7 +83,7 @@ public class GameActivity extends AppCompatActivity{
                 .show();
 
         //刷新昵称
-        for(int i = 1; i <= 9; i++) {
+        for(int i = 1; i <= PLAYER_NUM; i++) {
             String str = savedInstanceState.getString("textView"+i);
             TextView tmp = null;
             switch (i) {
@@ -154,7 +158,7 @@ public class GameActivity extends AppCompatActivity{
         setAllImageButtonOff();
 
         //开启语音socket通道
-        String ip = "192.168.1.100";
+        String ip = "162.105.175.115";
         audioSocket = null;
         try {
             audioSocket = new Socket(ip,audio_port);
@@ -372,7 +376,7 @@ public class GameActivity extends AppCompatActivity{
                     multipleClick = true;
                 }
                 if (type.equals("kill_people_refresh") && role.equals("werewolf")) {
-                    for(int i = 1; i <= 9; i++) {
+                    for(int i = 1; i <= PLAYER_NUM; i++) {
                         int cnt = bundle.getInt("player"+i+"_killed_cnt");
                         TextView tmp = null;
                         switch (i) {
@@ -444,7 +448,7 @@ public class GameActivity extends AppCompatActivity{
                 if(type.equals("switch_to_day")) {
                     getWindow().setBackgroundDrawableResource(R.drawable.day);
 
-                    for(int i = 1; i <= 9; i++) {
+                    for(int i = 1; i <= PLAYER_NUM; i++) {
                         int status = bundle.getInt("player"+i+"_status");
                         if(status == 0) {
                             ImageButton tmp = null;
@@ -514,7 +518,7 @@ public class GameActivity extends AppCompatActivity{
                     pass.setEnabled(false);
                 }
                 if(type.equals("voted_to_die")) {
-                    for(int i = 1; i <= 9; i++) {
+                    for(int i = 1; i <= PLAYER_NUM; i++) {
                         int status = bundle.getInt("player"+i+"_status");
                         if(status == 0) {
                             ImageButton tmp = null;
@@ -561,7 +565,7 @@ public class GameActivity extends AppCompatActivity{
                 if(type.equals("game_over")) {
                     Intent it = new Intent(GameActivity.this,EndActivity.class);
                     Bundle b = new Bundle();
-                    for(int i = 1; i <= 9; i++) {   //记录所有玩家昵称
+                    for(int i = 1; i <= PLAYER_NUM; i++) {   //记录所有玩家昵称
                         TextView tmp = null;
                         switch(i) {
                             case 1:
@@ -594,9 +598,12 @@ public class GameActivity extends AppCompatActivity{
                         }
                         b.putString(("textView"+i),tmp.getText().toString());
                     }
+                    b.putInt("stuId",stuId);
+                    b.putString("nickName",nickName);
+                    b.putString("token",token);
                     b.putString("winner",bundle.getString("winner"));
                     b.putInt("score",bundle.getInt("score"));
-                    for(int i = 1; i <= 9; i++) {
+                    for(int i = 1; i <= PLAYER_NUM; i++) {
                         b.putString("player"+i+"_role",bundle.getString("player"+i+"_role"));
                     }
                     it.putExtras(bundle);

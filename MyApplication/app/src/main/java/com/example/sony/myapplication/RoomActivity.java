@@ -10,18 +10,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.Socket;
-import java.net.URL;
-
-import com.example.sony.myapplication.util.getHttpResponseBody;
-
 public class RoomActivity extends AppCompatActivity {
     private Button Exit;
     private Button Ready;
@@ -29,6 +17,8 @@ public class RoomActivity extends AppCompatActivity {
 
     private int stuId;
     private String nickName;
+    private String token;
+
     private int roomId;    //用户进入房间后保存房间ID，在点击“准备”发送HTTTP请求时使用
     private String roomName;
 
@@ -53,13 +43,14 @@ public class RoomActivity extends AppCompatActivity {
 
         roomInfo = (TextView)findViewById(R.id.roomInfo);
 
-        stuId = savedInstanceState.getInt("stuId");
-        nickName = savedInstanceState.getString("nickName");
-        roomId = savedInstanceState.getInt("roomId");
-        roomName = savedInstanceState.getString("roomName");
-        port = savedInstanceState.getInt("port");
-        audio_port = savedInstanceState.getInt("audio_port");
-        order = savedInstanceState.getInt("order");
+        stuId = this.getIntent().getExtras().getInt("stuId");
+        nickName = this.getIntent().getExtras().getString("nickName");
+        token = this.getIntent().getExtras().getString("token");
+        roomId = this.getIntent().getExtras().getInt("roomId");
+        roomName = this.getIntent().getExtras().getString("roomName");
+        port = this.getIntent().getExtras().getInt("port");
+        audio_port = this.getIntent().getExtras().getInt("audio_port");
+        order = this.getIntent().getExtras().getInt("order");
 
         roomInfo.setText(roomId+"房间\n"+roomName);
 
@@ -280,6 +271,7 @@ public class RoomActivity extends AppCompatActivity {
                     }
                     b.putInt("stuId",stuId);
                     b.putString("nickName",nickName);
+                    b.putString("token",token);
                     b.putString("role",bundle.getString("role"));
                     b.putInt("audio_port",audio_port);
                     b.putInt("order",order);
