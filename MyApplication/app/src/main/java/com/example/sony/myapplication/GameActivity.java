@@ -1,14 +1,12 @@
 package com.example.sony.myapplication;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.ButtonBarLayout;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -16,7 +14,10 @@ import android.widget.TextView;
 
 import com.example.sony.myapplication.util.AmrAudioEncoder;
 import com.example.sony.myapplication.util.AmrAudioPlayer;
+import com.example.sony.myapplication.util.FirstEvent;
 
+import org.greenrobot.eventbus.EventBus;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -25,7 +26,7 @@ import java.net.Socket;
 
 public class GameActivity extends AppCompatActivity{
 
-    private final int PLAYER_NUM = 4;
+    private final int PLAYER_NUM = 3;
 
     private int stuId;
     private String nickName;
@@ -33,8 +34,6 @@ public class GameActivity extends AppCompatActivity{
     private String role;
 
     private boolean multipleClick = false;
-
-    private MyReceiver receiver;
 
     private TextView textView;
     private ImageButton imageButton1;
@@ -189,11 +188,8 @@ public class GameActivity extends AppCompatActivity{
             }
         }
 
-        //注册广播接收器
-        receiver = new MyReceiver();
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("com.example.sony.myapplication.WakeService");
-        this.registerReceiver(receiver,filter);
+        //注册eventBus
+        EventBus.getDefault().register(this);
 
     }
 
@@ -201,6 +197,8 @@ public class GameActivity extends AppCompatActivity{
     protected void onDestroy() {
         super.onDestroy();
         stopService(new Intent(this,WakeService.class));
+
+        EventBus.getDefault().unregister(this);
 
         if(audioSocket != null) {
             try {
@@ -219,6 +217,7 @@ public class GameActivity extends AppCompatActivity{
                 audioPlayer.stop();
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -318,11 +317,13 @@ public class GameActivity extends AppCompatActivity{
             stopEncodeAudio();
 
             //用原来的socket发送“讲话完毕”信息
-            Intent it = new Intent();
-            Bundle bundle = new Bundle();
-            bundle.putString("type","speak_over");
-            it.putExtras(bundle);
-            sendBroadcast(it);
+            JSONObject js = new JSONObject();
+            try {
+                js.put("type","speak_over");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            EventBus.getDefault().post(new FirstEvent(js));
         }
     }
 
@@ -350,288 +351,345 @@ public class GameActivity extends AppCompatActivity{
         }
     }
 
-    class MyReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Bundle bundle = intent.getExtras();    //记录长连接service传送的信息
-            if(bundle != null) {
-                String type = bundle.getString("type");
-                if(type.equals("sys_info")) {
-                    textView.setText(bundle.getString("sys_info"));
-                }
-                if( (type.equals("prophet_start") && role.equals("prophet")) ) {
-                    setAllImageButtonOn();
-                }
-                if(type.equals("prophet_end") && role.equals("prophet")) {
-                    setAllImageButtonOff();
+    public void onEvent(FirstEvent event) {
+        JSONObject js = event.getJsonData();
 
-                    String str = bundle.getString("prophet_identify_role");
-                    new AlertDialog.Builder(GameActivity.this)
-                            .setMessage("你要验证的人是"+str)
-                            .setPositiveButton("确定",null)
-                            .show();
-                }
-                if(type.equals("werewolf_start") && role.equals("werewolf")) {
-                    setAllImageButtonOn();
-                    multipleClick = true;
-                }
-                if (type.equals("kill_people_refresh") && role.equals("werewolf")) {
-                    for(int i = 1; i <= PLAYER_NUM; i++) {
-                        int cnt = bundle.getInt("player"+i+"_killed_cnt");
-                        TextView tmp = null;
-                        switch (i) {
-                            case 1:
-                                tmp = (TextView)findViewById(R.id.tip1);
-                                break;
-                            case 2:
-                                tmp = (TextView)findViewById(R.id.tip2);
-                                break;
-                            case 3:
-                                tmp = (TextView)findViewById(R.id.tip3);
-                                break;
-                            case 4:
-                                tmp = (TextView)findViewById(R.id.tip4);
-                                break;
-                            case 5:
-                                tmp = (TextView)findViewById(R.id.tip5);
-                                break;
-                            case 6:
-                                tmp = (TextView)findViewById(R.id.tip6);
-                                break;
-                            case 7:
-                                tmp = (TextView)findViewById(R.id.tip7);
-                                break;
-                            case 8:
-                                tmp = (TextView)findViewById(R.id.tip8);
-                                break;
-                            case 9:
-                                tmp = (TextView)findViewById(R.id.tip9);
-                                break;
-                        }
-                        if(cnt == 0) {
-                            tmp.setText("");
-                            tmp.setBackgroundColor(0x0000FF00);
-                        }
-                        else if(cnt > 0) {
-                            tmp.setText(cnt);
-                            tmp.setBackgroundResource(R.drawable.circle_red);
-                        }
-                    }
-                }
-                if( (type.equals("werewolf_end") && role.equals("werewolf")) ) {
-                    setAllImageButtonOff();
-                    multipleClick = false;
-                }
-                if(type.equals("witch_save_start") && role.equals("witch")) {
-                    int killed_player_order = bundle.getInt("killed_player_order");
-                    new AlertDialog.Builder(GameActivity.this)
-                            .setMessage("今晚"+killed_player_order+"号玩家死了，你要救吗？")
-                            .setPositiveButton("救",new positiveClickListener())
-                            .setNegativeButton("不救",new negativeClickListener())
-                            .show();
-                }
+        Log.d("game_have_received", "");
 
-                if (type.equals("witch_poison_choice") && role.equals("witch")) {
-                    new AlertDialog.Builder(GameActivity.this)
-                            .setMessage("今晚你要毒人吗？")
-                            .setPositiveButton("毒",new positiveClickListener())
-                            .setNegativeButton("不毒",new negativeClickListener())
-                            .show();
-                }
-                if (type.equals("witch_poison_start") && role.equals("witch")) {
-                    new AlertDialog.Builder(GameActivity.this)
-                            .setMessage("请选择一个玩家下毒！")
-                            .setPositiveButton("确定",null)
-                            .show();
-                    setAllImageButtonOn();
-                }
-                if(type.equals("switch_to_day")) {
-                    getWindow().setBackgroundDrawableResource(R.drawable.day);
+        String type = null;
+        try {
+            type = js.getString("type");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
-                    for(int i = 1; i <= PLAYER_NUM; i++) {
-                        int status = bundle.getInt("player"+i+"_status");
-                        if(status == 0) {
-                            ImageButton tmp = null;
-                            switch(i) {
-                                case 1:
-                                    tmp = imageButton1;
-                                    break;
-                                case 2:
-                                    tmp = imageButton2;
-                                    break;
-                                case 3:
-                                    tmp = imageButton3;
-                                    break;
-                                case 4:
-                                    tmp = imageButton4;
-                                    break;
-                                case 5:
-                                    tmp = imageButton5;
-                                    break;
-                                case 6:
-                                    tmp = imageButton6;
-                                    break;
-                                case 7:
-                                    tmp = imageButton7;
-                                    break;
-                                case 8:
-                                    tmp = imageButton8;
-                                    break;
-                                case 9:
-                                    tmp = imageButton9;
-                                    break;
-                            }
-                            tmp.setBackgroundResource(R.drawable.player_die);
-                        }
-                    }
-                    setAllImageButtonOff();
+        Log.d("receive_type",type);
 
-                    pass.setText("过了");
-                    pass.setBackgroundResource(R.drawable.round_rectangle);
+        if(type.equals("sys_info")) {
+            try {
+                textView.setText(js.getString("sys_info"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        if( (type.equals("prophet_start") && role.equals("prophet")) ) {
+            setAllImageButtonOn();
+        }
+        if(type.equals("prophet_end") && role.equals("prophet")) {
+            setAllImageButtonOff();
+
+            String str = null;
+            try {
+                str = js.getString("prophet_identify_role");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            new AlertDialog.Builder(GameActivity.this)
+                    .setMessage("你要验证的人是"+str)
+                    .setPositiveButton("确定",null)
+                    .show();
+        }
+        if(type.equals("werewolf_start") && role.equals("werewolf")) {
+            setAllImageButtonOn();
+            multipleClick = true;
+        }
+        if (type.equals("kill_people_refresh") && role.equals("werewolf")) {
+            for(int i = 1; i <= PLAYER_NUM; i++) {
+                int cnt = 0;
+                try {
+                    cnt = js.getInt("player"+i+"_killed_cnt");
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                if(type.equals("hunter_killed") && role.equals("hunter")) {
-                    new AlertDialog.Builder(GameActivity.this)
-                            .setMessage("请选择一个玩家带走")
-                            .setPositiveButton("确定",null)
-                            .show();
-                    setAllImageButtonOn();
+                TextView tmp = null;
+                switch (i) {
+                    case 1:
+                        tmp = (TextView)findViewById(R.id.tip1);
+                        break;
+                    case 2:
+                        tmp = (TextView)findViewById(R.id.tip2);
+                        break;
+                    case 3:
+                        tmp = (TextView)findViewById(R.id.tip3);
+                        break;
+                    case 4:
+                        tmp = (TextView)findViewById(R.id.tip4);
+                        break;
+                    case 5:
+                        tmp = (TextView)findViewById(R.id.tip5);
+                        break;
+                    case 6:
+                        tmp = (TextView)findViewById(R.id.tip6);
+                        break;
+                    case 7:
+                        tmp = (TextView)findViewById(R.id.tip7);
+                        break;
+                    case 8:
+                        tmp = (TextView)findViewById(R.id.tip8);
+                        break;
+                    case 9:
+                        tmp = (TextView)findViewById(R.id.tip9);
+                        break;
                 }
-                if(type.equals("you_are_died") && role != null) {
-                    role = null;
-                    setAllImageButtonOff();
-                    pass.setEnabled(false);
+                if(cnt == 0) {
+                    tmp.setText("");
+                    tmp.setBackgroundColor(0x0000FF00);
                 }
-                if(type.equals("your_turn_to_speak") && role != null) {
-                    pass.setEnabled(true);
-                    startEncodeAudio();
-                }
-                if(type.equals("your_can_listen") ) {
-                    pass.setEnabled(false);
-                    startPlayAudio();
-                }
-                if(type.equals("you_have_heard_out")) {
-                    pass.setEnabled(false);
-                    stopPlayAudio();
-                }
-                if(type.equals("vote_start") && role != null) {
-                    setAllImageButtonOn();
-                    pass.setEnabled(false);
-                }
-                if(type.equals("voted_to_die")) {
-                    for(int i = 1; i <= PLAYER_NUM; i++) {
-                        int status = bundle.getInt("player"+i+"_status");
-                        if(status == 0) {
-                            ImageButton tmp = null;
-                            switch(i) {
-                                case 1:
-                                    tmp = imageButton1;
-                                    break;
-                                case 2:
-                                    tmp = imageButton2;
-                                    break;
-                                case 3:
-                                    tmp = imageButton3;
-                                    break;
-                                case 4:
-                                    tmp = imageButton4;
-                                    break;
-                                case 5:
-                                    tmp = imageButton5;
-                                    break;
-                                case 6:
-                                    tmp = imageButton6;
-                                    break;
-                                case 7:
-                                    tmp = imageButton7;
-                                    break;
-                                case 8:
-                                    tmp = imageButton8;
-                                    break;
-                                case 9:
-                                    tmp = imageButton9;
-                                    break;
-                            }
-                            tmp.setBackgroundResource(R.drawable.player_die);
-                        }
-                    }
-                }
-                if(type.equals( "switch_to_night")) {
-                    getWindow().setBackgroundDrawableResource(R.drawable.night);
-                    pass.setEnabled(false);
-                    pass.setText("");
-                    pass.setBackgroundColor(0x0000FF00);
-                    setAllImageButtonOff();
-                }
-                if(type.equals("game_over")) {
-                    Intent it = new Intent(GameActivity.this,EndActivity.class);
-                    Bundle b = new Bundle();
-                    for(int i = 1; i <= PLAYER_NUM; i++) {   //记录所有玩家昵称
-                        TextView tmp = null;
-                        switch(i) {
-                            case 1:
-                                tmp = (TextView) findViewById(R.id.textView1);
-                                break;
-                            case 2:
-                                tmp = (TextView) findViewById(R.id.textView2);
-                                break;
-                            case 3:
-                                tmp = (TextView) findViewById(R.id.textView3);
-                                break;
-                            case 4:
-                                tmp = (TextView) findViewById(R.id.textView4);
-                                break;
-                            case 5:
-                                tmp = (TextView) findViewById(R.id.textView5);
-                                break;
-                            case 6:
-                                tmp = (TextView) findViewById(R.id.textView6);
-                                break;
-                            case 7:
-                                tmp = (TextView) findViewById(R.id.textView7);
-                                break;
-                            case 8:
-                                tmp = (TextView) findViewById(R.id.textView8);
-                                break;
-                            case 9:
-                                tmp = (TextView) findViewById(R.id.textView9);
-                                break;
-                        }
-                        b.putString(("textView"+i),tmp.getText().toString());
-                    }
-                    b.putInt("stuId",stuId);
-                    b.putString("nickName",nickName);
-                    b.putString("token",token);
-                    b.putString("winner",bundle.getString("winner"));
-                    b.putInt("score",bundle.getInt("score"));
-                    for(int i = 1; i <= PLAYER_NUM; i++) {
-                        b.putString("player"+i+"_role",bundle.getString("player"+i+"_role"));
-                    }
-                    it.putExtras(bundle);
-                    startActivity(it);
+                else if(cnt > 0) {
+                    tmp.setText(cnt);
+                    tmp.setBackgroundResource(R.drawable.circle_red);
                 }
             }
+        }
+        if( (type.equals("werewolf_end") && role.equals("werewolf")) ) {
+            setAllImageButtonOff();
+            multipleClick = false;
+        }
+        if(type.equals("witch_save_start") && role.equals("witch")) {
+            int killed_player_order = 0;
+            try {
+                killed_player_order = js.getInt("killed_player_order");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            new AlertDialog.Builder(GameActivity.this)
+                    .setMessage("今晚"+killed_player_order+"号玩家死了，你要救吗？")
+                    .setPositiveButton("救",new positiveClickListener())
+                    .setNegativeButton("不救",new negativeClickListener())
+                    .show();
+        }
+
+        if (type.equals("witch_poison_choice") && role.equals("witch")) {
+            new AlertDialog.Builder(GameActivity.this)
+                    .setMessage("今晚你要毒人吗？")
+                    .setPositiveButton("毒",new positiveClickListener())
+                    .setNegativeButton("不毒",new negativeClickListener())
+                    .show();
+        }
+        if (type.equals("witch_poison_start") && role.equals("witch")) {
+            new AlertDialog.Builder(GameActivity.this)
+                    .setMessage("请选择一个玩家下毒！")
+                    .setPositiveButton("确定",null)
+                    .show();
+            setAllImageButtonOn();
+        }
+        if(type.equals("switch_to_day")) {
+            getWindow().setBackgroundDrawableResource(R.drawable.day);
+
+            for(int i = 1; i <= PLAYER_NUM; i++) {
+                int status = 0;
+                try {
+                    status = js.getInt("player"+i+"_status");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if(status == 0) {
+                    ImageButton tmp = null;
+                    switch(i) {
+                        case 1:
+                            tmp = imageButton1;
+                            break;
+                        case 2:
+                            tmp = imageButton2;
+                            break;
+                        case 3:
+                            tmp = imageButton3;
+                            break;
+                        case 4:
+                            tmp = imageButton4;
+                            break;
+                        case 5:
+                            tmp = imageButton5;
+                            break;
+                        case 6:
+                            tmp = imageButton6;
+                            break;
+                        case 7:
+                            tmp = imageButton7;
+                            break;
+                        case 8:
+                            tmp = imageButton8;
+                            break;
+                        case 9:
+                            tmp = imageButton9;
+                            break;
+                    }
+                    tmp.setBackgroundResource(R.drawable.player_die);
+                }
+            }
+            setAllImageButtonOff();
+
+            pass.setText("过了");
+            pass.setBackgroundResource(R.drawable.round_rectangle);
+        }
+        if(type.equals("hunter_killed") && role.equals("hunter")) {
+            new AlertDialog.Builder(GameActivity.this)
+                    .setMessage("请选择一个玩家带走")
+                    .setPositiveButton("确定",null)
+                    .show();
+            setAllImageButtonOn();
+        }
+        if(type.equals("you_are_died") && role != null) {
+            role = null;
+            setAllImageButtonOff();
+            pass.setEnabled(false);
+        }
+        if(type.equals("your_turn_to_speak") && role != null) {
+            pass.setEnabled(true);
+            startEncodeAudio();
+        }
+        if(type.equals("your_can_listen") ) {
+            pass.setEnabled(false);
+            startPlayAudio();
+        }
+        if(type.equals("you_have_heard_out")) {
+            pass.setEnabled(false);
+            stopPlayAudio();
+        }
+        if(type.equals("vote_start") && role != null) {
+            setAllImageButtonOn();
+            pass.setEnabled(false);
+        }
+        if(type.equals("voted_to_die")) {
+            for(int i = 1; i <= PLAYER_NUM; i++) {
+                int status = 0;
+                try {
+                    status = js.getInt("player"+i+"_status");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if(status == 0) {
+                    ImageButton tmp = null;
+                    switch(i) {
+                        case 1:
+                            tmp = imageButton1;
+                            break;
+                        case 2:
+                            tmp = imageButton2;
+                            break;
+                        case 3:
+                            tmp = imageButton3;
+                            break;
+                        case 4:
+                            tmp = imageButton4;
+                            break;
+                        case 5:
+                            tmp = imageButton5;
+                            break;
+                        case 6:
+                            tmp = imageButton6;
+                            break;
+                        case 7:
+                            tmp = imageButton7;
+                            break;
+                        case 8:
+                            tmp = imageButton8;
+                            break;
+                        case 9:
+                            tmp = imageButton9;
+                            break;
+                    }
+                    tmp.setBackgroundResource(R.drawable.player_die);
+                }
+            }
+        }
+        if(type.equals( "switch_to_night")) {
+            getWindow().setBackgroundDrawableResource(R.drawable.night);
+            pass.setEnabled(false);
+            pass.setText("");
+            pass.setBackgroundColor(0x0000FF00);
+            setAllImageButtonOff();
+        }
+        if(type.equals("game_over")) {
+            Intent it = new Intent(GameActivity.this,EndActivity.class);
+            Bundle b = new Bundle();
+            for(int i = 1; i <= PLAYER_NUM; i++) {   //记录所有玩家昵称
+                TextView tmp = null;
+                switch(i) {
+                    case 1:
+                        tmp = (TextView) findViewById(R.id.textView1);
+                        break;
+                    case 2:
+                        tmp = (TextView) findViewById(R.id.textView2);
+                        break;
+                    case 3:
+                        tmp = (TextView) findViewById(R.id.textView3);
+                        break;
+                    case 4:
+                        tmp = (TextView) findViewById(R.id.textView4);
+                        break;
+                    case 5:
+                        tmp = (TextView) findViewById(R.id.textView5);
+                        break;
+                    case 6:
+                        tmp = (TextView) findViewById(R.id.textView6);
+                        break;
+                    case 7:
+                        tmp = (TextView) findViewById(R.id.textView7);
+                        break;
+                    case 8:
+                        tmp = (TextView) findViewById(R.id.textView8);
+                        break;
+                    case 9:
+                        tmp = (TextView) findViewById(R.id.textView9);
+                        break;
+                }
+                b.putString(("textView"+i),tmp.getText().toString());
+            }
+            b.putInt("stuId",stuId);
+            b.putString("nickName",nickName);
+            b.putString("token",token);
+
+            try {
+                b.putString("winner",js.getString("winner"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                b.putInt("score",js.getInt("score"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            for(int i = 1; i <= PLAYER_NUM; i++) {
+                try {
+                    b.putString("player"+i+"_role",js.getString("player"+i+"_role"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            it.putExtras(b);
+            startActivity(it);
         }
     }
 
     private class positiveClickListener implements DialogInterface.OnClickListener {
         public void onClick(DialogInterface d, int i) {
-            Intent it = new Intent();
-            Bundle bundle = new Bundle();
-            bundle.putString("type","yes_or_no");
-            bundle.putInt("yes_or_no",1);
-            it.putExtras(bundle);
-            sendBroadcast(it);
+
+            JSONObject js = new JSONObject();
+            try {
+                js.put("type","yes_or_no");
+                js.put("yes_or_no",1);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            EventBus.getDefault().post(new FirstEvent(js));
         }
     }
 
     private class negativeClickListener implements DialogInterface.OnClickListener {
         public void onClick(DialogInterface d, int i) {
-            Intent it = new Intent();
-            Bundle bundle = new Bundle();
-            bundle.putString("type","yes_or_no");
-            bundle.putInt("yes_or_no",0);
-            it.putExtras(bundle);
-            sendBroadcast(it);
+
+            JSONObject js = new JSONObject();
+            try {
+                js.put("type","yes_or_no");
+                js.put("yes_or_no",0);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            EventBus.getDefault().post(new FirstEvent(js));
         }
     }
 

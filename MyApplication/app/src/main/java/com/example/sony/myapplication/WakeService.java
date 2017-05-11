@@ -1,10 +1,8 @@
 package com.example.sony.myapplication;
 
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,6 +10,8 @@ import android.os.IBinder;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 
+import org.greenrobot.eventbus.EventBus;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -20,20 +20,21 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-
+import com.example.sony.myapplication.util.FirstEvent;
 
 public class WakeService extends Service{
+
+    private final int PLAYER_NUM = 3;
 
     private static Binder mBinder;
     private static String TAG = "WakeService";
     private Thread mThread = null;
     private boolean runFlag = true;
     private static Socket socket=null;
-    private final int PLAYER_NUM = 4;
+
     //private Context context;
 
     private int port;
-    private MyReceiver receiver;
 
     private boolean choose_player = false;
     private int chosen_order;
@@ -68,6 +69,8 @@ public class WakeService extends Service{
         super.onDestroy();
         runFlag = false;
 
+        EventBus.getDefault().unregister(this);
+
         if(socket != null) {
             try {
                 socket.close();
@@ -92,11 +95,8 @@ public class WakeService extends Service{
         nickName = bundle.getString("nickName");
         order = bundle.getInt("order");
 
-        //注册广播接收器
-        receiver = new MyReceiver();
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("com.example.sony.myapplication.GameActivity");
-        this.registerReceiver(receiver,filter);
+        //注册eventBus
+        EventBus.getDefault().register(this);
 
         Thread thread = getThread();
         if(thread.isAlive()){
@@ -133,184 +133,116 @@ public class WakeService extends Service{
         try{
             String type = jsonData.getString("type");
 
-            Intent it;
-            Bundle bundle;
+            Log.d("type",type);
+
+            JSONObject js = new JSONObject();
             switch(type) {
                 case "another_player_ready":
-                    it = new Intent();
-                    bundle = new Bundle();
-                    bundle.putString("type","another_player_ready");
-
+                    js.put("type","another_player_ready");
                     for(int i = 1; i <= PLAYER_NUM; i++) {
                         String nickName = jsonData.getString("nickName"+i);
-                        bundle.putString(("nickName"+i),nickName);
+                        js.put(("nickName"+i),nickName);
                     }
-
-                    it.putExtras(bundle);
-                    sendBroadcast(it);
+                    EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "can_start_game":
-                    String role = jsonData.getString("role");
-
-                    it = new Intent();
-                    bundle = new Bundle();
-                    bundle.putString("type","can_start_game");
-                    bundle.putString("role",role);
-                    it.putExtras(bundle);
-                    sendBroadcast(it);
+                    js.put("type","another_player_ready");
+                    js.put("role",jsonData.getString("role"));
+                    EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "sys_info":
-                    String info = jsonData.getString("sys_info");
-                    it = new Intent();
-                    bundle = new Bundle();
-                    bundle.putString("type","sys_info");
-                    bundle.putString("sys_info",info);
-                    it.putExtras(bundle);
-                    sendBroadcast(it);
+                    js.put("type","sys_info");
+                    js.put("sys_info",jsonData.getString("sys_info"));
+                    EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "prophet_start":
-                    it = new Intent();
-                    bundle = new Bundle();
-                    bundle.putString("type","prophet_start");
-                    it.putExtras(bundle);
-                    sendBroadcast(it);
+                    js.put("type","prophet_start");
+                    EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "prophet_end":
-                    it = new Intent();
-                    bundle = new Bundle();
-                    bundle.putString("type","prophet_end");
-                    bundle.putString("prophet_identify_role",jsonData.getString("prophet_identify_role"));
-                    it.putExtras(bundle);
-                    sendBroadcast(it);
+                    js.put("type","prophet_end");
+                    js.put("prophet_identify_role",jsonData.getString("prophet_identify_role"));
+                    EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "werewolf_start":
-                    it = new Intent();
-                    bundle = new Bundle();
-                    bundle.putString("type","werewolf_start");
-                    it.putExtras(bundle);
-                    sendBroadcast(it);
+                    js.put("type","werewolf_start");
+                    EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "kill_people_refresh":
-                    it = new Intent();
-                    bundle = new Bundle();
-                    bundle.putString("type","kill_people_refresh");
+                    js.put("type","kill_people_refresh");
                     for(int i = 1; i <= PLAYER_NUM; i++) {
-                        bundle.putInt("player"+i+"_killed_cnt",jsonData.getInt("player"+i+"_killed_cnt"));
+                        js.put("player"+i+"_killed_cnt",jsonData.getInt("player"+i+"_killed_cnt"));
                     }
-                    it.putExtras(bundle);
-                    sendBroadcast(it);
+                    EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "werewolf_end":
-                    it = new Intent();
-                    bundle = new Bundle();
-                    bundle.putString("type","werewolf_end");
-                    it.putExtras(bundle);
-                    sendBroadcast(it);
+                    js.put("type","werewolf_end");
+                    EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "witch_save_start":
-                    it = new Intent();
-                    bundle = new Bundle();
-                    bundle.putString("type","witch_save_start");
-                    bundle.putInt("killed_player_order",jsonData.getInt("killed_player_order"));
-                    it.putExtras(bundle);
-                    sendBroadcast(it);
+                    js.put("type","witch_save_start");
+                    js.put("killed_player_order",jsonData.getInt("killed_player_order"));
+                    EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "witch_poison_choice":
-                    it = new Intent();
-                    bundle = new Bundle();
-                    bundle.putString("type","witch_poison_choice");
-                    it.putExtras(bundle);
-                    sendBroadcast(it);
+                    js.put("type","witch_poison_choice");
+                    EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "witch_poison_start":
-                    it = new Intent();
-                    bundle = new Bundle();
-                    bundle.putString("type","witch_poison_start");
-                    it.putExtras(bundle);
-                    sendBroadcast(it);
+                    js.put("type","witch_poison_start");
+                    EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "switch_to_day":
-                    it = new Intent();
-                    bundle = new Bundle();
-                    bundle.putString("type","switch_to_day");
+                    js.put("type","switch_to_day");
                     for(int i = 1; i <= PLAYER_NUM; i++) {
-                        bundle.putInt("player"+i+"_status",jsonData.getInt("player"+i+"_status"));
+                        js.put("player"+i+"_status",jsonData.getInt("player"+i+"_status"));
                     }
-                    it.putExtras(bundle);
-                    sendBroadcast(it);
+                    EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "hunter_killed":
-                    it = new Intent();
-                    bundle = new Bundle();
-                    bundle.putString("type","hunter_killed");
-                    it.putExtras(bundle);
-                    sendBroadcast(it);
+                    js.put("type","hunter_killed");
+                    EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "you_are_died":
-                    it = new Intent();
-                    bundle = new Bundle();
-                    bundle.putString("type","you_are_died");
-                    it.putExtras(bundle);
-                    sendBroadcast(it);
+                    js.put("type","you_are_died");
+                    EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "your_turn_to_speak":
-                    it = new Intent();
-                    bundle = new Bundle();
-                    bundle.putString("type","your_turn_to_speak");
-                    it.putExtras(bundle);
-                    sendBroadcast(it);
+                    js.put("type","your_turn_to_speak");
+                    EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "you_can_listen":
-                    it = new Intent();
-                    bundle = new Bundle();
-                    bundle.putString("type","you_can_listen");
-                    it.putExtras(bundle);
-                    sendBroadcast(it);
+                    js.put("type","you_can_listen");
+                    EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "you_have_heard_out":
-                    it = new Intent();
-                    bundle = new Bundle();
-                    bundle.putString("type","you_have_heard_out");
-                    it.putExtras(bundle);
-                    sendBroadcast(it);
+                    js.put("type","you_have_heard_out");
+                    EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "vote_start":
-                    it = new Intent();
-                    bundle = new Bundle();
-                    bundle.putString("type","vote_start");
-                    it.putExtras(bundle);
-                    sendBroadcast(it);
+                    js.put("type","vote_start");
+                    EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "voted_to_die":
-                    it = new Intent();
-                    bundle = new Bundle();
-                    bundle.putString("type","voted_to_die");
+                    js.put("type","voted_to_die");
                     for(int i = 1; i <= PLAYER_NUM; i++) {
-                        bundle.putInt("player"+i+"_status",jsonData.getInt("player"+i+"_status"));
+                        js.put("player"+i+"_status",jsonData.getInt("player"+i+"_status"));
                     }
-                    it.putExtras(bundle);
-                    sendBroadcast(it);
+                    EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "switch_to_night":
-                    it = new Intent();
-                    bundle = new Bundle();
-                    bundle.putString("type","switch_to_night");
-                    it.putExtras(bundle);
-                    sendBroadcast(it);
+                    js.put("type","switch_to_night");
+                    EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "game_over":
-                    it = new Intent();
-                    bundle = new Bundle();
-                    bundle.putString("type","game_over");
-                    bundle.putString("winner",jsonData.getString("winner"));
-                    bundle.putInt("score",jsonData.getInt("score"));
+                    js.put("type","game_over");
+                    js.put("winner",jsonData.getString("winner"));
+                    js.put("score",jsonData.getInt("score"));
                     for(int i = 1; i <= PLAYER_NUM; i++) {
-                        bundle.putString("player"+i+"_role",jsonData.getString("player"+i+"_role"));
+                        js.put("player"+i+"_role",jsonData.getString("player"+i+"_role"));
                     }
-                    it.putExtras(bundle);
-                    sendBroadcast(it);
+                    EventBus.getDefault().post(new FirstEvent(js));
                     break;
-
                 default:break;
             }
 
@@ -457,7 +389,6 @@ public class WakeService extends Service{
                     js.put("stuId",stuId);
                     js.put("nickName",nickName);
                     js.put("order",order);
-                    Log.d("----------",js.toString());
                     byte[] sendp = js.toString().getBytes();
                     os.write(sendp);
                     os.flush();
@@ -478,24 +409,40 @@ public class WakeService extends Service{
         return socket;
     }
 
-    class MyReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Bundle bundle = intent.getExtras();    //记录长连接service传送的信息
-            if (bundle != null) {
-                String type = bundle.getString("type");
-                if(type.equals("choose_player")) {
-                    choose_player = true;
-                    chosen_order = bundle.getInt("chosen_order");
-                }
-                if(type.equals("yes_or_no")) {
-                    yes_or_no = true;
-                    witch_choice = bundle.getInt("witch_choice");
-                }
-                if(type.equals("speak_over")) {
-                    speak_over = true;
-                }
+    public void onEvent(FirstEvent event) {
+        JSONObject js = event.getJsonData();
+
+        Log.d("service_have_received", "");
+
+        String type = null;
+        try {
+            type = js.getString("type");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        Log.d("receive_type", type);
+
+        if(type.equals("choose_player")) {
+            choose_player = true;
+
+            try {
+                chosen_order = js.getInt("chosen_order");
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
+        }
+        if(type.equals("yes_or_no")) {
+            yes_or_no = true;
+
+            try {
+                witch_choice = js.getInt("witch_choice");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        if(type.equals("speak_over")) {
+            speak_over = true;
         }
     }
 

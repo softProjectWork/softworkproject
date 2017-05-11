@@ -1,16 +1,23 @@
 package com.example.sony.myapplication;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.sony.myapplication.util.FirstEvent;
+
+import org.greenrobot.eventbus.EventBus;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class RoomActivity extends AppCompatActivity {
+    private final int PLAYER_NUM = 3;
+
     private Button Exit;
     private Button Ready;
     private TextView roomInfo;
@@ -25,8 +32,6 @@ public class RoomActivity extends AppCompatActivity {
     private int port;
     private int audio_port;
     private int order;
-
-    private MyReceiver receiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,14 +69,17 @@ public class RoomActivity extends AppCompatActivity {
         it.putExtras(bundle);
         startService(it);   //启动服务
 
-        //注册广播接收器
-        receiver = new MyReceiver();
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("com.example.sony.application.WakeService");
-        RoomActivity.this.registerReceiver(receiver,filter);
+        //注册eventBus
+        EventBus.getDefault().register(this);
 
         //设置退出按钮为不可点击
         Exit.setEnabled(false);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 
     private class ReadyClickListener implements View.OnClickListener {
@@ -189,96 +197,115 @@ public class RoomActivity extends AppCompatActivity {
         }
     }
 
-    class MyReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context,Intent intent) {
-            Bundle bundle = intent.getExtras();    //记录长连接service传送的信息
-            if(bundle != null) {
-                String type = bundle.getString("type");
+    public void onEvent(FirstEvent event) {
+        JSONObject js = event.getJsonData();
 
-                if(type.equals("another_player_ready")) {    //有新玩家准备，刷新页面
-                    //刷新已准备玩家昵称
-                    TextView tmp = null;
-                    for (int i = 1; i <= 9; i++) {
-                        String player_nickName = bundle.getString("nickName" + i);
-                        switch (i) {
-                            case 1:
-                                tmp = (TextView) findViewById(R.id.textView1);
-                                break;
-                            case 2:
-                                tmp = (TextView) findViewById(R.id.textView2);
-                                break;
-                            case 3:
-                                tmp = (TextView) findViewById(R.id.textView3);
-                                break;
-                            case 4:
-                                tmp = (TextView) findViewById(R.id.textView4);
-                                break;
-                            case 5:
-                                tmp = (TextView) findViewById(R.id.textView5);
-                                break;
-                            case 6:
-                                tmp = (TextView) findViewById(R.id.textView6);
-                                break;
-                            case 7:
-                                tmp = (TextView) findViewById(R.id.textView7);
-                                break;
-                            case 8:
-                                tmp = (TextView) findViewById(R.id.textView8);
-                                break;
-                            case 9:
-                                tmp = (TextView) findViewById(R.id.textView9);
-                                break;
-                        }
-                        tmp.setText(player_nickName);
-                    }
+        Log.d("room_have_received","");
+
+        String type = null;
+        try {
+            type = js.getString("type");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        Log.d("receive_type",type);
+
+        if(type.equals("another_player_ready")) {    //有新玩家准备，刷新页面
+            //刷新已准备玩家昵称
+            TextView tmp = null;
+            for (int i = 1; i <= PLAYER_NUM; i++) {
+                String player_nickName = null;
+
+                try {
+                    player_nickName = js.getString("nickName" + i);
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                if(type.equals("can_start_game")) {  //人数已满，开始游戏
-                    Intent it = new Intent(RoomActivity.this,GameActivity.class);
-                    Bundle b = new Bundle();
-                    for(int i = 1; i <= 9; i++) {   //记录所有玩家昵称，给游戏界面初始化使用
-                        TextView tmp = null;
-                        switch(i) {
-                            case 1:
-                                tmp = (TextView) findViewById(R.id.textView1);
-                                break;
-                            case 2:
-                                tmp = (TextView) findViewById(R.id.textView2);
-                                break;
-                            case 3:
-                                tmp = (TextView) findViewById(R.id.textView3);
-                                break;
-                            case 4:
-                                tmp = (TextView) findViewById(R.id.textView4);
-                                break;
-                            case 5:
-                                tmp = (TextView) findViewById(R.id.textView5);
-                                break;
-                            case 6:
-                                tmp = (TextView) findViewById(R.id.textView6);
-                                break;
-                            case 7:
-                                tmp = (TextView) findViewById(R.id.textView7);
-                                break;
-                            case 8:
-                                tmp = (TextView) findViewById(R.id.textView8);
-                                break;
-                            case 9:
-                                tmp = (TextView) findViewById(R.id.textView9);
-                                break;
-                        }
-                        b.putString(("textView"+i),tmp.getText().toString());
-                    }
-                    b.putInt("stuId",stuId);
-                    b.putString("nickName",nickName);
-                    b.putString("token",token);
-                    b.putString("role",bundle.getString("role"));
-                    b.putInt("audio_port",audio_port);
-                    b.putInt("order",order);
-                    it.putExtras(b);
-                    startActivity(it);
+
+                switch (i) {
+                    case 1:
+                        tmp = (TextView) findViewById(R.id.textView1);
+                        break;
+                    case 2:
+                        tmp = (TextView) findViewById(R.id.textView2);
+                        break;
+                    case 3:
+                        tmp = (TextView) findViewById(R.id.textView3);
+                        break;
+                    case 4:
+                        tmp = (TextView) findViewById(R.id.textView4);
+                        break;
+                    case 5:
+                        tmp = (TextView) findViewById(R.id.textView5);
+                        break;
+                    case 6:
+                        tmp = (TextView) findViewById(R.id.textView6);
+                        break;
+                    case 7:
+                        tmp = (TextView) findViewById(R.id.textView7);
+                        break;
+                    case 8:
+                        tmp = (TextView) findViewById(R.id.textView8);
+                        break;
+                    case 9:
+                        tmp = (TextView) findViewById(R.id.textView9);
+                        break;
                 }
+                tmp.setText(player_nickName);
             }
+        }
+        if(type.equals("can_start_game")) {  //人数已满，开始游戏
+
+            Intent it = new Intent(RoomActivity.this,GameActivity.class);
+            Bundle b = new Bundle();
+            for(int i = 1; i <= PLAYER_NUM; i++) {   //记录所有玩家昵称，给游戏界面初始化使用
+                TextView tmp = null;
+                switch(i) {
+                    case 1:
+                        tmp = (TextView) findViewById(R.id.textView1);
+                        break;
+                    case 2:
+                        tmp = (TextView) findViewById(R.id.textView2);
+                        break;
+                    case 3:
+                        tmp = (TextView) findViewById(R.id.textView3);
+                        break;
+                    case 4:
+                        tmp = (TextView) findViewById(R.id.textView4);
+                        break;
+                    case 5:
+                        tmp = (TextView) findViewById(R.id.textView5);
+                        break;
+                    case 6:
+                        tmp = (TextView) findViewById(R.id.textView6);
+                        break;
+                    case 7:
+                        tmp = (TextView) findViewById(R.id.textView7);
+                        break;
+                    case 8:
+                        tmp = (TextView) findViewById(R.id.textView8);
+                        break;
+                    case 9:
+                        tmp = (TextView) findViewById(R.id.textView9);
+                        break;
+                }
+                b.putString(("textView"+i),tmp.getText().toString());
+            }
+            b.putInt("stuId",stuId);
+            b.putString("nickName",nickName);
+            b.putString("token",token);
+
+            try {
+                b.putString("role",js.getString("role"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            b.putInt("audio_port",audio_port);
+            b.putInt("order",order);
+            it.putExtras(b);
+            startActivity(it);
         }
     }
 
