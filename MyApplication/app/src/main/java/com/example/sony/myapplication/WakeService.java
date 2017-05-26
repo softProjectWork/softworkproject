@@ -132,7 +132,7 @@ public class WakeService extends Service{
         return mThread;
     }
 
-    private void parseJSON(JSONObject jsonData) {
+    private synchronized void parseJSON(JSONObject jsonData) {
         try{
             String type = jsonData.getString("type");
 
@@ -257,7 +257,7 @@ public class WakeService extends Service{
 
     //网络请求
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    private synchronized void doRequest() throws IOException {
+    private void doRequest() throws IOException {
         Socket socket = getSocket();
 
         if (socket.isConnected()){
