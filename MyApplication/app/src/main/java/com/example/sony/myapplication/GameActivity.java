@@ -17,6 +17,7 @@ import com.example.sony.myapplication.util.AmrAudioPlayer;
 import com.example.sony.myapplication.util.FirstEvent;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -189,7 +190,9 @@ public class GameActivity extends AppCompatActivity{
         }
 
         //注册eventBus
-        EventBus.getDefault().register(this);
+        if(!EventBus.getDefault().hasSubscriberForEvent(FirstEvent.class)) {
+            EventBus.getDefault().register(this);
+        }
 
     }
 
@@ -351,6 +354,7 @@ public class GameActivity extends AppCompatActivity{
         }
     }
 
+    @Subscribe
     public void onEvent(FirstEvent event) {
         JSONObject js = event.getJsonData();
 

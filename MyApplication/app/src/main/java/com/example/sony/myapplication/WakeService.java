@@ -11,6 +11,7 @@ import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -96,7 +97,9 @@ public class WakeService extends Service{
         order = bundle.getInt("order");
 
         //注册eventBus
-        EventBus.getDefault().register(this);
+        if(!EventBus.getDefault().hasSubscriberForEvent(FirstEvent.class)) {
+            EventBus.getDefault().register(this);
+        }
 
         Thread thread = getThread();
         if(thread.isAlive()){
@@ -254,7 +257,7 @@ public class WakeService extends Service{
 
     //网络请求
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    private void doRequest() throws IOException {
+    private synchronized void doRequest() throws IOException {
         Socket socket = getSocket();
 
         if (socket.isConnected()){
@@ -409,6 +412,7 @@ public class WakeService extends Service{
         return socket;
     }
 
+    @Subscribe
     public void onEvent(FirstEvent event) {
         JSONObject js = event.getJsonData();
 

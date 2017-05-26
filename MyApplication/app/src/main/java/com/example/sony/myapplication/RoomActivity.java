@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.example.sony.myapplication.util.FirstEvent;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -70,7 +71,9 @@ public class RoomActivity extends AppCompatActivity {
         startService(it);   //启动服务
 
         //注册eventBus
-        EventBus.getDefault().register(this);
+        if(!EventBus.getDefault().hasSubscriberForEvent(FirstEvent.class)) {
+            EventBus.getDefault().register(this);
+        }
 
         //设置退出按钮为不可点击
         Exit.setEnabled(false);
@@ -197,7 +200,8 @@ public class RoomActivity extends AppCompatActivity {
         }
     }
 
-    public void onEvent(FirstEvent event) {
+    @Subscribe
+    public void onEvent(final FirstEvent event) {
         JSONObject js = event.getJsonData();
 
         Log.d("room_have_received","");
@@ -252,7 +256,16 @@ public class RoomActivity extends AppCompatActivity {
                         tmp = (TextView) findViewById(R.id.textView9);
                         break;
                 }
-                tmp.setText(player_nickName);
+
+                final String finalPlayer_nickName = player_nickName;
+                final TextView finalTmp = tmp;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        finalTmp.setText(finalPlayer_nickName);
+                    }
+                });
+
             }
         }
         if(type.equals("can_start_game")) {  //人数已满，开始游戏
