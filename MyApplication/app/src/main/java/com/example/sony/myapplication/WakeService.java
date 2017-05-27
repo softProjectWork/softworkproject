@@ -132,121 +132,123 @@ public class WakeService extends Service{
         return mThread;
     }
 
-    private synchronized void parseJSON(JSONObject jsonData) {
+    private void parseJSON(JSONObject jsonData) {
         try{
             String type = jsonData.getString("type");
 
             Log.d("type",type);
 
             JSONObject js = new JSONObject();
+
             switch(type) {
                 case "another_player_ready":
-                    js.put("type","another_player_ready");
-                    for(int i = 1; i <= PLAYER_NUM; i++) {
-                        String nickName = jsonData.getString("nickName"+i);
-                        js.put(("nickName"+i),nickName);
+                    js.put("type", "another_player_ready");
+                    for (int i = 1; i <= PLAYER_NUM; i++) {
+                        String nickName = jsonData.getString("nickName" + i);
+                        js.put(("nickName" + i), nickName);
                     }
                     EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "can_start_game":
-                    js.put("type","another_player_ready");
-                    js.put("role",jsonData.getString("role"));
+                    js.put("type", "can_start_game");
+                    js.put("role", jsonData.getString("role"));
                     EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "sys_info":
-                    js.put("type","sys_info");
-                    js.put("sys_info",jsonData.getString("sys_info"));
+                    js.put("type", "sys_info");
+                    js.put("sys_info", jsonData.getString("sys_info"));
                     EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "prophet_start":
-                    js.put("type","prophet_start");
+                    js.put("type", "prophet_start");
                     EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "prophet_end":
-                    js.put("type","prophet_end");
-                    js.put("prophet_identify_role",jsonData.getString("prophet_identify_role"));
+                    js.put("type", "prophet_end");
+                    js.put("prophet_identify_role", jsonData.getString("prophet_identify_role"));
                     EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "werewolf_start":
-                    js.put("type","werewolf_start");
+                    js.put("type", "werewolf_start");
                     EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "kill_people_refresh":
-                    js.put("type","kill_people_refresh");
-                    for(int i = 1; i <= PLAYER_NUM; i++) {
-                        js.put("player"+i+"_killed_cnt",jsonData.getInt("player"+i+"_killed_cnt"));
+                    js.put("type", "kill_people_refresh");
+                    for (int i = 1; i <= PLAYER_NUM; i++) {
+                        js.put("player" + i + "_killed_cnt", jsonData.getInt("player" + i + "_killed_cnt"));
                     }
                     EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "werewolf_end":
-                    js.put("type","werewolf_end");
+                    js.put("type", "werewolf_end");
                     EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "witch_save_start":
-                    js.put("type","witch_save_start");
-                    js.put("killed_player_order",jsonData.getInt("killed_player_order"));
+                    js.put("type", "witch_save_start");
+                    js.put("killed_player_order", jsonData.getInt("killed_player_order"));
                     EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "witch_poison_choice":
-                    js.put("type","witch_poison_choice");
+                    js.put("type", "witch_poison_choice");
                     EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "witch_poison_start":
-                    js.put("type","witch_poison_start");
+                    js.put("type", "witch_poison_start");
                     EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "switch_to_day":
-                    js.put("type","switch_to_day");
-                    for(int i = 1; i <= PLAYER_NUM; i++) {
-                        js.put("player"+i+"_status",jsonData.getInt("player"+i+"_status"));
+                    js.put("type", "switch_to_day");
+                    for (int i = 1; i <= PLAYER_NUM; i++) {
+                        js.put("player" + i + "_status", jsonData.getInt("player" + i + "_status"));
                     }
                     EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "hunter_killed":
-                    js.put("type","hunter_killed");
+                    js.put("type", "hunter_killed");
                     EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "you_are_died":
-                    js.put("type","you_are_died");
+                    js.put("type", "you_are_died");
                     EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "your_turn_to_speak":
-                    js.put("type","your_turn_to_speak");
+                    js.put("type", "your_turn_to_speak");
                     EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "you_can_listen":
-                    js.put("type","you_can_listen");
+                    js.put("type", "you_can_listen");
                     EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "you_have_heard_out":
-                    js.put("type","you_have_heard_out");
+                    js.put("type", "you_have_heard_out");
                     EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "vote_start":
-                    js.put("type","vote_start");
+                    js.put("type", "vote_start");
                     EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "voted_to_die":
-                    js.put("type","voted_to_die");
-                    for(int i = 1; i <= PLAYER_NUM; i++) {
-                        js.put("player"+i+"_status",jsonData.getInt("player"+i+"_status"));
+                    js.put("type", "voted_to_die");
+                    for (int i = 1; i <= PLAYER_NUM; i++) {
+                        js.put("player" + i + "_status", jsonData.getInt("player" + i + "_status"));
                     }
                     EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "switch_to_night":
-                    js.put("type","switch_to_night");
+                    js.put("type", "switch_to_night");
                     EventBus.getDefault().post(new FirstEvent(js));
                     break;
                 case "game_over":
-                    js.put("type","game_over");
-                    js.put("winner",jsonData.getString("winner"));
-                    js.put("score",jsonData.getInt("score"));
-                    for(int i = 1; i <= PLAYER_NUM; i++) {
-                        js.put("player"+i+"_role",jsonData.getString("player"+i+"_role"));
+                    js.put("type", "game_over");
+                    js.put("winner", jsonData.getString("winner"));
+                    js.put("score", jsonData.getInt("score"));
+                    for (int i = 1; i <= PLAYER_NUM; i++) {
+                        js.put("player" + i + "_role", jsonData.getString("player" + i + "_role"));
                     }
                     EventBus.getDefault().post(new FirstEvent(js));
                     break;
-                default:break;
+                default:
+                    break;
             }
 
         }
@@ -271,7 +273,9 @@ public class WakeService extends Service{
                     byte[] resp = new byte[1000];
                     is.read(resp);
                     String res = new String(resp);
+
                     Log.i(TAG, res);
+
                     JSONObject p = new JSONObject(res);
                     parseJSON(p);
                 } catch (Exception e) {

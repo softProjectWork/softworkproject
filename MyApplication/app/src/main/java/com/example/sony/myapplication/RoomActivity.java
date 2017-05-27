@@ -204,16 +204,12 @@ public class RoomActivity extends AppCompatActivity {
     public void onEvent(final FirstEvent event) {
         JSONObject js = event.getJsonData();
 
-        Log.d("room_have_received","");
-
         String type = null;
         try {
             type = js.getString("type");
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-        Log.d("receive_type",type);
 
         if(type.equals("another_player_ready")) {    //有新玩家准备，刷新页面
             //刷新已准备玩家昵称
@@ -268,8 +264,8 @@ public class RoomActivity extends AppCompatActivity {
 
             }
         }
-        if(type.equals("can_start_game")) {  //人数已满，开始游戏
 
+        if(type.equals("can_start_game")) {  //人数已满，开始游戏
             Intent it = new Intent(RoomActivity.this,GameActivity.class);
             Bundle b = new Bundle();
             for(int i = 1; i <= PLAYER_NUM; i++) {   //记录所有玩家昵称，给游戏界面初始化使用
@@ -320,6 +316,7 @@ public class RoomActivity extends AppCompatActivity {
             it.putExtras(b);
             startActivity(it);
         }
+
     }
 
 }

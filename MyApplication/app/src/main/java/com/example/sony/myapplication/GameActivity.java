@@ -84,7 +84,7 @@ public class GameActivity extends AppCompatActivity{
 
         //刷新昵称
         for(int i = 1; i <= PLAYER_NUM; i++) {
-            String str = savedInstanceState.getString("textView"+i);
+            final String str = this.getIntent().getExtras().getString("textView"+i);
             TextView tmp = null;
             switch (i) {
                 case 1:
@@ -115,7 +115,13 @@ public class GameActivity extends AppCompatActivity{
                     tmp = (TextView) findViewById(R.id.textView9);
                     break;
             }
-            tmp.setText(str);
+            final TextView finalTmp = tmp;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    finalTmp.setText(str);
+                }
+            });
         }
 
         textView = (TextView)findViewById(R.id.textView);
@@ -157,7 +163,7 @@ public class GameActivity extends AppCompatActivity{
 
         setAllImageButtonOff();
 
-        //开启语音socket通道
+        /*//开启语音socket通道
         String ip = "162.105.175.115";
         audioSocket = null;
         try {
@@ -166,13 +172,14 @@ public class GameActivity extends AppCompatActivity{
             e.printStackTrace();
         }
 
-        //建立连接后，立马发送stuId、nickName、order
+        //建立连接后，立马发送order
         if (audioSocket.isConnected()) {
             OutputStream os = null;
             try {
                 os = audioSocket.getOutputStream();
                 JSONObject js = new JSONObject();
-                js.put("order", savedInstanceState.getInt("order"));
+                Log.d("wtf",String.valueOf(this.getIntent().getExtras().getInt("order")));
+                js.put("order", this.getIntent().getExtras().getInt("order"));
                 byte[] sendp = js.toString().getBytes();
                 os.write(sendp);
                 os.flush();
@@ -187,7 +194,7 @@ public class GameActivity extends AppCompatActivity{
                     }
                 }
             }
-        }
+        }*/
 
         //注册eventBus
         if(!EventBus.getDefault().hasSubscriberForEvent(FirstEvent.class)) {
