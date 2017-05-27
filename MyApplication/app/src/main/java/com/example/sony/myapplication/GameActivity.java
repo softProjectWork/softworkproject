@@ -76,7 +76,7 @@ public class GameActivity extends AppCompatActivity{
         token = this.getIntent().getExtras().getString("token");
         role = this.getIntent().getExtras().getString("role");
 
-        audioSocket = ((MyApp)getApplicationContext()).getSocket();
+        //audioSocket = ((MyApp)getApplicationContext()).getSocket();
 
         new AlertDialog.Builder(this)
                 .setMessage("你的身份是"+role)

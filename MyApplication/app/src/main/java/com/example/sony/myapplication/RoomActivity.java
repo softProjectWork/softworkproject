@@ -84,8 +84,8 @@ public class RoomActivity extends AppCompatActivity {
         Exit.setEnabled(false);
 
         //开启语音socket通道
-        MyApp myApp = (MyApp)getApplicationContext();
-        myApp.setSocket(order,audio_port);
+        //MyApp myApp = (MyApp)getApplicationContext();
+        //myApp.setSocket(order,audio_port);
     }
 
     @Override
