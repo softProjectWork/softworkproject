@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.example.sony.myapplication.util.AmrAudioEncoder;
 import com.example.sony.myapplication.util.AmrAudioPlayer;
 import com.example.sony.myapplication.util.FirstEvent;
+import com.example.sony.myapplication.util.MyApp;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -62,7 +63,6 @@ public class GameActivity extends AppCompatActivity{
     private AmrAudioEncoder amrEncoder;
     private AmrAudioPlayer audioPlayer;
 
-    private int audio_port;
     private Socket audioSocket;
 
     @Override
@@ -75,7 +75,8 @@ public class GameActivity extends AppCompatActivity{
         nickName = this.getIntent().getExtras().getString("nickName");
         token = this.getIntent().getExtras().getString("token");
         role = this.getIntent().getExtras().getString("role");
-        audio_port = this.getIntent().getExtras().getInt("audio_port");
+
+        audioSocket = ((MyApp)getApplicationContext()).getSocket();
 
         new AlertDialog.Builder(this)
                 .setMessage("你的身份是"+role)
@@ -162,39 +163,6 @@ public class GameActivity extends AppCompatActivity{
         imageButton9.setOnClickListener(icl9);
 
         setAllImageButtonOff();
-
-        /*//开启语音socket通道
-        String ip = "162.105.175.115";
-        audioSocket = null;
-        try {
-            audioSocket = new Socket(ip,audio_port);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        //建立连接后，立马发送order
-        if (audioSocket.isConnected()) {
-            OutputStream os = null;
-            try {
-                os = audioSocket.getOutputStream();
-                JSONObject js = new JSONObject();
-                Log.d("wtf",String.valueOf(this.getIntent().getExtras().getInt("order")));
-                js.put("order", this.getIntent().getExtras().getInt("order"));
-                byte[] sendp = js.toString().getBytes();
-                os.write(sendp);
-                os.flush();
-                os.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-                if (os != null) {
-                    try {
-                        os.close();
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
-                }
-            }
-        }*/
 
         //注册eventBus
         if(!EventBus.getDefault().hasSubscriberForEvent(FirstEvent.class)) {

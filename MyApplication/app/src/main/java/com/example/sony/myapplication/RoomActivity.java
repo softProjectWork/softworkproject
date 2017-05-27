@@ -10,11 +10,14 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.sony.myapplication.util.FirstEvent;
+import com.example.sony.myapplication.util.MyApp;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.net.Socket;
 
 public class RoomActivity extends AppCompatActivity {
     private final int PLAYER_NUM = 3;
@@ -33,6 +36,8 @@ public class RoomActivity extends AppCompatActivity {
     private int port;
     private int audio_port;
     private int order;
+
+    private Socket audioSocket;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +82,10 @@ public class RoomActivity extends AppCompatActivity {
 
         //设置退出按钮为不可点击
         Exit.setEnabled(false);
+
+        //开启语音socket通道
+        MyApp myApp = (MyApp)getApplicationContext();
+        myApp.setSocket(order,audio_port);
     }
 
     @Override
@@ -310,9 +319,6 @@ public class RoomActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
-            b.putInt("audio_port",audio_port);
-            b.putInt("order",order);
             it.putExtras(b);
             startActivity(it);
         }
