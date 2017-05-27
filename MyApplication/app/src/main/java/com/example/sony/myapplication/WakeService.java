@@ -97,9 +97,7 @@ public class WakeService extends Service{
         order = bundle.getInt("order");
 
         //注册eventBus
-        if(!EventBus.getDefault().hasSubscriberForEvent(FirstEvent.class)) {
-            EventBus.getDefault().register(this);
-        }
+        EventBus.getDefault().register(this);
 
         Thread thread = getThread();
         if(thread.isAlive()){
@@ -292,6 +290,8 @@ public class WakeService extends Service{
 
                 if(choose_player) {
                     try {
+                        Log.d("wtf", String.valueOf(chosen_order));
+
                         os = socket.getOutputStream();
                         JSONObject js = new JSONObject();
                         js.put("type","choose_player");
@@ -299,7 +299,7 @@ public class WakeService extends Service{
                         byte[] sendp = js.toString().getBytes();
                         os.write(sendp);
                         os.flush();
-                        choose_player = false;
+                        choose_player = false;Log.d("wtf","wtf end");
                     }
                     catch(Exception e) {
                         e.printStackTrace();
@@ -366,13 +366,6 @@ public class WakeService extends Service{
         }
 
     }
-
-    /*private Context getContext(){
-        if(context == null){
-            context = this;
-        }
-        return context;
-    }*/
 
     private Socket getSocket() throws IOException {
         if(socket==null){

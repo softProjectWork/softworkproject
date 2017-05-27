@@ -76,9 +76,7 @@ public class RoomActivity extends AppCompatActivity {
         startService(it);   //启动服务
 
         //注册eventBus
-        if(!EventBus.getDefault().hasSubscriberForEvent(FirstEvent.class)) {
-            EventBus.getDefault().register(this);
-        }
+        EventBus.getDefault().register(this);
 
         //设置退出按钮为不可点击
         Exit.setEnabled(false);
@@ -89,8 +87,8 @@ public class RoomActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onStop() {
+        super.onStop();
         EventBus.getDefault().unregister(this);
     }
 

@@ -70,6 +70,9 @@ public class GameActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game);
 
+        //注册eventBus
+        EventBus.getDefault().register(this);
+
         //保存自己的学号、昵称、角色，并弹窗显示角色
         stuId = this.getIntent().getExtras().getInt("stuId");
         nickName = this.getIntent().getExtras().getString("nickName");
@@ -163,20 +166,12 @@ public class GameActivity extends AppCompatActivity{
         imageButton9.setOnClickListener(icl9);
 
         setAllImageButtonOff();
-
-        //注册eventBus
-        if(!EventBus.getDefault().hasSubscriberForEvent(FirstEvent.class)) {
-            EventBus.getDefault().register(this);
-        }
-
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         stopService(new Intent(this,WakeService.class));
-
-        EventBus.getDefault().unregister(this);
 
         if(audioSocket != null) {
             try {
@@ -197,6 +192,12 @@ public class GameActivity extends AppCompatActivity{
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
     }
 
     public void setAllImageButtonOn() {
@@ -224,12 +225,14 @@ public class GameActivity extends AppCompatActivity{
     }
 
     public void sendOrder(int i) {
-        Intent it = new Intent();
-        Bundle bundle = new Bundle();
-        bundle.putString("type","choose_player");
-        bundle.putInt("chosen_order",i);
-        it.putExtras(bundle);
-        sendBroadcast(it);
+        JSONObject js = new JSONObject();
+        try {
+            js.put("type","choose_player");
+            js.put("chosen_order",i);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        EventBus.getDefault().post(new FirstEvent(js));
         if(!multipleClick)
             setAllImageButtonOff();
     }
@@ -330,10 +333,8 @@ public class GameActivity extends AppCompatActivity{
     }
 
     @Subscribe
-    public void onEvent(FirstEvent event) {
+    public void onEvent(final FirstEvent event) {
         JSONObject js = event.getJsonData();
-
-        Log.d("game_have_received", "");
 
         String type = null;
         try {
