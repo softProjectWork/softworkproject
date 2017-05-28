@@ -20,7 +20,7 @@ import org.json.JSONObject;
 import java.net.Socket;
 
 public class RoomActivity extends AppCompatActivity {
-    private final int PLAYER_NUM = 3;
+    private final int PLAYER_NUM = 1;
 
     private Button Exit;
     private Button Ready;

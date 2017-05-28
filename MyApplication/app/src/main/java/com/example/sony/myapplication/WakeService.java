@@ -1,8 +1,8 @@
 package com.example.sony.myapplication;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,7 +25,7 @@ import com.example.sony.myapplication.util.FirstEvent;
 
 public class WakeService extends Service{
 
-    private final int PLAYER_NUM = 3;
+    private final int PLAYER_NUM = 1;
 
     private static Binder mBinder;
     private static String TAG = "WakeService";
@@ -33,25 +33,13 @@ public class WakeService extends Service{
     private boolean runFlag = true;
     private static Socket socket=null;
 
-    //private Context context;
-
     private int port;
-
-    private boolean choose_player = false;
-    private int chosen_order;
-
-    private boolean yes_or_no = false;
-    private int witch_choice;
-
-    private boolean speak_over = false;
 
     private int stuId;
     private String nickName;
     private int order;
 
-
     class MyBinder extends Binder{
-
         public Service getLocalService(){
             return WakeService.this;
         }
@@ -133,11 +121,7 @@ public class WakeService extends Service{
     private void parseJSON(JSONObject jsonData) {
         try{
             String type = jsonData.getString("type");
-
-            Log.d("type",type);
-
             JSONObject js = new JSONObject();
-
             switch(type) {
                 case "another_player_ready":
                     js.put("type", "another_player_ready");
@@ -249,8 +233,7 @@ public class WakeService extends Service{
                     break;
             }
 
-        }
-        catch(Exception e) {
+        } catch(Exception e) {
             e.printStackTrace();
         }
     }
@@ -263,17 +246,14 @@ public class WakeService extends Service{
         if (socket.isConnected()){
             Log.i(TAG, "socket connected");
             InputStream is = null;
-            OutputStream os = null;
-            //持续请求服务器
+            //持续读取服务器
             while (runFlag) {
                 try {
                     is = socket.getInputStream();
                     byte[] resp = new byte[1000];
                     is.read(resp);
                     String res = new String(resp);
-
                     Log.i(TAG, res);
-
                     JSONObject p = new JSONObject(res);
                     parseJSON(p);
                 } catch (Exception e) {
@@ -284,85 +264,8 @@ public class WakeService extends Service{
                         } catch (IOException e1) {
                             e1.printStackTrace();
                         }
-                } finally {
-                    Log.i(TAG, "over");
                 }
-
-                if(choose_player) {
-                    try {
-                        Log.d("wtf", String.valueOf(chosen_order));
-
-                        os = socket.getOutputStream();
-                        JSONObject js = new JSONObject();
-                        js.put("type","choose_player");
-                        js.put("chosen_order",chosen_order);
-                        byte[] sendp = js.toString().getBytes();
-                        os.write(sendp);
-                        os.flush();
-                        choose_player = false;Log.d("wtf","wtf end");
-                    }
-                    catch(Exception e) {
-                        e.printStackTrace();
-                        if(os != null) {
-                            try {
-                                os.close();
-                            }
-                            catch(IOException e1) {
-                                e1.printStackTrace();
-                            }
-                        }
-                    }
-                }
-
-                if(yes_or_no) {
-                    try {
-                        os = socket.getOutputStream();
-                        JSONObject js = new JSONObject();
-                        js.put("type","witch_choice");
-                        js.put("witch_choice",witch_choice);
-                        byte[] send = js.toString().getBytes();
-                        os.write(send);
-                        os.flush();
-                        yes_or_no = false;
-                    }
-                    catch(Exception e) {
-                        e.printStackTrace();
-                        if(os != null) {
-                            try {
-                                os.close();
-                            }
-                            catch(IOException e1) {
-                                e1.printStackTrace();
-                            }
-                        }
-                    }
-                }
-
-                if(speak_over) {
-                    try {
-                        os = socket.getOutputStream();
-                        JSONObject js = new JSONObject();
-                        js.put("type","speak_over");
-                        byte[] sendp = js.toString().getBytes();
-                        os.write(sendp);
-                        os.flush();
-                        speak_over = false;
-                    }
-                    catch(Exception e) {
-                        e.printStackTrace();
-                        if(os != null) {
-                            try {
-                                os.close();
-                            }
-                            catch(IOException e1) {
-                                e1.printStackTrace();
-                            }
-                        }
-                    }
-                }
-
             }
-
         }
 
     }
@@ -376,13 +279,10 @@ public class WakeService extends Service{
             catch (UnknownHostException e) {
                 e.printStackTrace();
             }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
 
             //建立连接后，立马发送stuId、nickName、order
             if (socket.isConnected()){
-                OutputStream os = null;
+                OutputStream os;
                 try {
                     os = socket.getOutputStream();
                     JSONObject js = new JSONObject();
@@ -392,16 +292,8 @@ public class WakeService extends Service{
                     byte[] sendp = js.toString().getBytes();
                     os.write(sendp);
                     os.flush();
-                }
-                catch(Exception e) {
+                } catch(Exception e) {
                     e.printStackTrace();
-
-//                } finally {
-//                    try {
-//                        os.close();
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
                 }
             }
 
@@ -411,10 +303,7 @@ public class WakeService extends Service{
 
     @Subscribe
     public void onEvent(FirstEvent event) {
-        JSONObject js = event.getJsonData();
-
-        Log.d("service_have_received", "");
-
+        final JSONObject js = event.getJsonData();
         String type = null;
         try {
             type = js.getString("type");
@@ -422,28 +311,64 @@ public class WakeService extends Service{
             e.printStackTrace();
         }
 
-        Log.d("receive_type", type);
-
         if(type.equals("choose_player")) {
-            choose_player = true;
-
-            try {
-                chosen_order = js.getInt("chosen_order");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            new AsyncTask<Void, Void, String>() {
+                @Override
+                protected String doInBackground(Void... params) {
+                    OutputStream os;
+                    try {
+                        os = socket.getOutputStream();
+                        JSONObject Js = new JSONObject();
+                        Js.put("type","choose_player");
+                        Js.put("chosen_order",js.getInt("chosen_order"));
+                        byte[] sendp = Js.toString().getBytes();
+                        os.write(sendp);
+                        os.flush();
+                    } catch(Exception e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }
+            }.execute();
         }
         if(type.equals("yes_or_no")) {
-            yes_or_no = true;
-
-            try {
-                witch_choice = js.getInt("witch_choice");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            new AsyncTask<Void, Void, String>() {
+                @Override
+                protected String doInBackground(Void... params) {
+                    OutputStream os;
+                    try {
+                        os = socket.getOutputStream();
+                        JSONObject Js = new JSONObject();
+                        Js.put("type","witch_choice");
+                        Js.put("witch_choice",js.getInt("witch_choice"));
+                        byte[] sendp = Js.toString().getBytes();
+                        os.write(sendp);
+                        os.flush();
+                    } catch(Exception e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }
+            }.execute();
         }
         if(type.equals("speak_over")) {
-            speak_over = true;
+            new AsyncTask<Void, Void, String>() {
+                @Override
+                protected String doInBackground(Void... params) {
+                    OutputStream os;
+                    try {
+                        os = socket.getOutputStream();
+                        JSONObject Js = new JSONObject();
+                        Js.put("type","speak_over");
+                        byte[] sendp = js.toString().getBytes();
+                        os.write(sendp);
+                        os.flush();
+                    } catch(Exception e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }
+            }.execute();
         }
     }
 

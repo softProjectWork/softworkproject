@@ -28,7 +28,7 @@ import java.net.Socket;
 
 public class GameActivity extends AppCompatActivity{
 
-    private final int PLAYER_NUM = 3;
+    private final int PLAYER_NUM = 1;
 
     private int stuId;
     private String nickName;
@@ -201,27 +201,37 @@ public class GameActivity extends AppCompatActivity{
     }
 
     public void setAllImageButtonOn() {
-        imageButton1.setEnabled(true);
-        imageButton2.setEnabled(true);
-        imageButton3.setEnabled(true);
-        imageButton4.setEnabled(true);
-        imageButton5.setEnabled(true);
-        imageButton6.setEnabled(true);
-        imageButton7.setEnabled(true);
-        imageButton8.setEnabled(true);
-        imageButton9.setEnabled(true);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                imageButton1.setEnabled(true);
+                imageButton2.setEnabled(true);
+                imageButton3.setEnabled(true);
+                imageButton4.setEnabled(true);
+                imageButton5.setEnabled(true);
+                imageButton6.setEnabled(true);
+                imageButton7.setEnabled(true);
+                imageButton8.setEnabled(true);
+                imageButton9.setEnabled(true);
+            }
+        });
     }
 
     public void setAllImageButtonOff() {
-        imageButton1.setEnabled(false);
-        imageButton2.setEnabled(false);
-        imageButton3.setEnabled(false);
-        imageButton4.setEnabled(false);
-        imageButton5.setEnabled(false);
-        imageButton6.setEnabled(false);
-        imageButton7.setEnabled(false);
-        imageButton8.setEnabled(false);
-        imageButton9.setEnabled(false);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                imageButton1.setEnabled(false);
+                imageButton2.setEnabled(false);
+                imageButton3.setEnabled(false);
+                imageButton4.setEnabled(false);
+                imageButton5.setEnabled(false);
+                imageButton6.setEnabled(false);
+                imageButton7.setEnabled(false);
+                imageButton8.setEnabled(false);
+                imageButton9.setEnabled(false);
+            }
+        });
     }
 
     public void sendOrder(int i) {
@@ -238,9 +248,7 @@ public class GameActivity extends AppCompatActivity{
     }
 
     private class Image1ClickListener implements View.OnClickListener {
-        public void onClick(View V) {
-            sendOrder(1);
-        }
+        public void onClick(View V) { sendOrder(1); }
     }
 
     private class Image2ClickListener implements View.OnClickListener {
@@ -343,8 +351,6 @@ public class GameActivity extends AppCompatActivity{
             e.printStackTrace();
         }
 
-        Log.d("receive_type",type);
-
         if(type.equals("sys_info")) {
             try {
                 textView.setText(js.getString("sys_info"));
@@ -412,12 +418,25 @@ public class GameActivity extends AppCompatActivity{
                         break;
                 }
                 if(cnt == 0) {
-                    tmp.setText("");
-                    tmp.setBackgroundColor(0x0000FF00);
+                    final TextView finalTmp = tmp;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            finalTmp.setText("");
+                            finalTmp.setBackgroundColor(0x0000FF00);
+                        }
+                    });
                 }
                 else if(cnt > 0) {
-                    tmp.setText(cnt);
-                    tmp.setBackgroundResource(R.drawable.circle_red);
+                    final TextView finalTmp = tmp;
+                    final int Cnt = cnt;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            finalTmp.setText(Cnt);
+                            finalTmp.setBackgroundResource(R.drawable.circle_red);
+                        }
+                    });
                 }
             }
         }
@@ -494,7 +513,13 @@ public class GameActivity extends AppCompatActivity{
                             tmp = imageButton9;
                             break;
                     }
-                    tmp.setBackgroundResource(R.drawable.player_die);
+                    final ImageButton finalTmp = tmp;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            finalTmp.setBackgroundResource(R.drawable.player_die);
+                        }
+                    });
                 }
             }
             setAllImageButtonOff();
@@ -569,7 +594,13 @@ public class GameActivity extends AppCompatActivity{
                             tmp = imageButton9;
                             break;
                     }
-                    tmp.setBackgroundResource(R.drawable.player_die);
+                    final ImageButton finalTmp = tmp;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            finalTmp.setBackgroundResource(R.drawable.player_die);
+                        }
+                    });
                 }
             }
         }
@@ -651,7 +682,7 @@ public class GameActivity extends AppCompatActivity{
             JSONObject js = new JSONObject();
             try {
                 js.put("type","yes_or_no");
-                js.put("yes_or_no",1);
+                js.put("witch_choice",1);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -665,7 +696,7 @@ public class GameActivity extends AppCompatActivity{
             JSONObject js = new JSONObject();
             try {
                 js.put("type","yes_or_no");
-                js.put("yes_or_no",0);
+                js.put("witch_choice",0);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
