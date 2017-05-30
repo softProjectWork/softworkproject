@@ -15,18 +15,23 @@ public class MyApp extends Application{
         return audioSocket;
     }
 
-    public void setSocket(int order,int audio_port) {
-        //开启语音socket通道
-        String ip = "162.105.175.115";
-        audioSocket = null;
-        try {
-            audioSocket = new Socket(ip,audio_port);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void setSocket(int order, final int audio_port) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //开启语音socket通道
+                String ip = "162.105.175.115";
+                audioSocket = null;
+                try {
+                    audioSocket = new Socket(ip,audio_port);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
 
         //建立连接后，立马发送order
-        if (audioSocket.isConnected()) {
+        /*if (audioSocket.isConnected()) {
             OutputStream os = null;
             try {
                 os = audioSocket.getOutputStream();
@@ -46,6 +51,6 @@ public class MyApp extends Application{
                     }
                 }
             }
-        }
+        }*/
     }
 }
