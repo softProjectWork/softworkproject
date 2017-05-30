@@ -28,7 +28,7 @@ import java.net.Socket;
 
 public class GameActivity extends AppCompatActivity{
 
-    private final int PLAYER_NUM = 1;
+    private final int PLAYER_NUM = 3;
 
     private int stuId;
     private String nickName;
@@ -79,7 +79,8 @@ public class GameActivity extends AppCompatActivity{
         token = this.getIntent().getExtras().getString("token");
         role = this.getIntent().getExtras().getString("role");
 
-        //audioSocket = ((MyApp)getApplicationContext()).getSocket();
+        //获得语音传输通道
+        audioSocket = ((MyApp)getApplicationContext()).getSocket();
 
         new AlertDialog.Builder(this)
                 .setMessage("你的身份是"+role)
