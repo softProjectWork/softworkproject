@@ -343,7 +343,7 @@ public class GameActivity extends AppCompatActivity{
 
     @Subscribe
     public void onEvent(final FirstEvent event) {
-        JSONObject js = event.getJsonData();
+        final JSONObject js = event.getJsonData();
 
         String type = null;
         try {
@@ -353,11 +353,17 @@ public class GameActivity extends AppCompatActivity{
         }
 
         if(type.equals("sys_info")) {
-            try {
-                textView.setText(js.getString("sys_info"));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            final JSONObject JS = js;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        textView.setText(js.getString("sys_info"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
         }
         if( (type.equals("prophet_start") && role.equals("prophet")) ) {
             setAllImageButtonOn();
