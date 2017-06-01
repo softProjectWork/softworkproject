@@ -7,9 +7,11 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.sony.myapplication.util.AmrAudioEncoder;
@@ -343,7 +345,7 @@ public class GameActivity extends AppCompatActivity{
 
     @Subscribe
     public void onEvent(final FirstEvent event) {
-        final JSONObject js = event.getJsonData();
+        JSONObject js = event.getJsonData();
 
         String type = null;
         try {
@@ -353,12 +355,12 @@ public class GameActivity extends AppCompatActivity{
         }
 
         if(type.equals("sys_info")) {
-            final JSONObject JS = js;
+            final JSONObject Js = js;
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        textView.setText(js.getString("sys_info"));
+                        textView.setText(Js.getString("sys_info"));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -377,10 +379,17 @@ public class GameActivity extends AppCompatActivity{
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            new AlertDialog.Builder(GameActivity.this)
-                    .setMessage("你要验证的人是"+str)
-                    .setPositiveButton("确定",null)
-                    .show();
+
+            final String Str = str;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    new AlertDialog.Builder(GameActivity.this)
+                            .setMessage("你要验证的人是"+Str)
+                            .setPositiveButton("确定",null)
+                            .show();
+                }
+            });
         }
         if(type.equals("werewolf_start") && role.equals("werewolf")) {
             setAllImageButtonOn();
@@ -440,7 +449,7 @@ public class GameActivity extends AppCompatActivity{
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            finalTmp.setText(Cnt);
+                            finalTmp.setText(String.valueOf(Cnt));
                             finalTmp.setBackgroundResource(R.drawable.circle_red);
                         }
                     });
@@ -448,6 +457,46 @@ public class GameActivity extends AppCompatActivity{
             }
         }
         if( (type.equals("werewolf_end") && role.equals("werewolf")) ) {
+            for(int i = 1; i <= PLAYER_NUM; i++) {
+                TextView tmp = null;
+                switch (i) {
+                    case 1:
+                        tmp = (TextView)findViewById(R.id.tip1);
+                        break;
+                    case 2:
+                        tmp = (TextView)findViewById(R.id.tip2);
+                        break;
+                    case 3:
+                        tmp = (TextView)findViewById(R.id.tip3);
+                        break;
+                    case 4:
+                        tmp = (TextView)findViewById(R.id.tip4);
+                        break;
+                    case 5:
+                        tmp = (TextView)findViewById(R.id.tip5);
+                        break;
+                    case 6:
+                        tmp = (TextView)findViewById(R.id.tip6);
+                        break;
+                    case 7:
+                        tmp = (TextView)findViewById(R.id.tip7);
+                        break;
+                    case 8:
+                        tmp = (TextView)findViewById(R.id.tip8);
+                        break;
+                    case 9:
+                        tmp = (TextView)findViewById(R.id.tip9);
+                        break;
+                }
+                final TextView finalTmp = tmp;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        finalTmp.setText("");
+                        finalTmp.setBackgroundColor(0x0000FF00);
+                    }
+                });
+            }
             setAllImageButtonOff();
             multipleClick = false;
         }
@@ -458,29 +507,52 @@ public class GameActivity extends AppCompatActivity{
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            new AlertDialog.Builder(GameActivity.this)
-                    .setMessage("今晚"+killed_player_order+"号玩家死了，你要救吗？")
-                    .setPositiveButton("救",new positiveClickListener())
-                    .setNegativeButton("不救",new negativeClickListener())
-                    .show();
+
+            final int kpo = killed_player_order;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    new AlertDialog.Builder(GameActivity.this)
+                            .setMessage("今晚"+kpo+"号玩家死了，你要救吗？")
+                            .setPositiveButton("救",new positiveClickListener())
+                            .setNegativeButton("不救",new negativeClickListener())
+                            .show();
+                }
+            });
         }
 
         if (type.equals("witch_poison_choice") && role.equals("witch")) {
-            new AlertDialog.Builder(GameActivity.this)
-                    .setMessage("今晚你要毒人吗？")
-                    .setPositiveButton("毒",new positiveClickListener())
-                    .setNegativeButton("不毒",new negativeClickListener())
-                    .show();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    new AlertDialog.Builder(GameActivity.this)
+                            .setMessage("今晚你要毒人吗？")
+                            .setPositiveButton("毒",new positiveClickListener())
+                            .setNegativeButton("不毒",new negativeClickListener())
+                            .show();
+                }
+            });
         }
         if (type.equals("witch_poison_start") && role.equals("witch")) {
-            new AlertDialog.Builder(GameActivity.this)
-                    .setMessage("请选择一个玩家下毒！")
-                    .setPositiveButton("确定",null)
-                    .show();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    new AlertDialog.Builder(GameActivity.this)
+                            .setMessage("请选择一个玩家下毒！")
+                            .setPositiveButton("确定",null)
+                            .show();
+                }
+            });
             setAllImageButtonOn();
         }
         if(type.equals("switch_to_day")) {
-            getWindow().setBackgroundDrawableResource(R.drawable.day);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    RelativeLayout layout = (RelativeLayout)findViewById(R.id.game);
+                    layout.setBackgroundResource(R.drawable.day);
+                }
+            });
 
             for(int i = 1; i <= PLAYER_NUM; i++) {
                 int status = 0;
@@ -524,43 +596,82 @@ public class GameActivity extends AppCompatActivity{
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            finalTmp.setBackgroundResource(R.drawable.player_die);
+                            finalTmp.setImageResource(R.drawable.player_die);
                         }
                     });
                 }
             }
             setAllImageButtonOff();
 
-            pass.setText("过了");
-            pass.setBackgroundResource(R.drawable.round_rectangle);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    pass.setText("过了");
+                    pass.setBackgroundResource(R.drawable.round_rectangle);
+                }
+            });
         }
         if(type.equals("hunter_killed") && role.equals("hunter")) {
-            new AlertDialog.Builder(GameActivity.this)
-                    .setMessage("请选择一个玩家带走")
-                    .setPositiveButton("确定",null)
-                    .show();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    new AlertDialog.Builder(GameActivity.this)
+                            .setMessage("请选择一个玩家带走")
+                            .setPositiveButton("确定",null)
+                            .show();
+                }
+            });
             setAllImageButtonOn();
         }
         if(type.equals("you_are_died") && role != null) {
             role = null;
             setAllImageButtonOff();
-            pass.setEnabled(false);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    pass.setEnabled(false);
+                }
+            });
         }
         if(type.equals("your_turn_to_speak") && role != null) {
-            pass.setEnabled(true);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    pass.setEnabled(true);
+                }
+            });
+            //Log.d("1","your turn to speak");
             startEncodeAudio();
+            //Log.d("2","your turn to speak");
         }
-        if(type.equals("your_can_listen") ) {
-            pass.setEnabled(false);
+        if(type.equals("you_can_listen") ) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    pass.setEnabled(false);
+                }
+            });
+            //Log.d("3","you can listen");
             startPlayAudio();
+            //Log.d("4","you can listen");
         }
         if(type.equals("you_have_heard_out")) {
-            pass.setEnabled(false);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    pass.setEnabled(false);
+                }
+            });
             stopPlayAudio();
         }
         if(type.equals("vote_start") && role != null) {
             setAllImageButtonOn();
-            pass.setEnabled(false);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    pass.setEnabled(false);
+                }
+            });
         }
         if(type.equals("voted_to_die")) {
             for(int i = 1; i <= PLAYER_NUM; i++) {
@@ -612,10 +723,16 @@ public class GameActivity extends AppCompatActivity{
             }
         }
         if(type.equals( "switch_to_night")) {
-            getWindow().setBackgroundDrawableResource(R.drawable.night);
-            pass.setEnabled(false);
-            pass.setText("");
-            pass.setBackgroundColor(0x0000FF00);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    RelativeLayout layout = (RelativeLayout)findViewById(R.id.game);
+                    layout.setBackgroundResource(R.drawable.night);
+                    pass.setEnabled(false);
+                    pass.setText("");
+                    pass.setBackgroundColor(0x0000FF00);
+                }
+            });
             setAllImageButtonOff();
         }
         if(type.equals("game_over")) {
