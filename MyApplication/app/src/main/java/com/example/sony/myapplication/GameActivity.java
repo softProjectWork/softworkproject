@@ -642,9 +642,15 @@ public class GameActivity extends AppCompatActivity{
                     pass.setEnabled(true);
                 }
             });
+<<<<<<< HEAD
             Log.d("1","your turn to speak");
             startEncodeAudio();
             Log.d("2","your turn to speak");
+=======
+            //Log.d("1","your turn to speak");
+            startEncodeAudio();
+            //Log.d("2","your turn to speak");
+>>>>>>> 6403c95f20cda1a88d3fe07b1bcada0052d6f596
         }
         if(type.equals("you_can_listen") ) {
             runOnUiThread(new Runnable() {
