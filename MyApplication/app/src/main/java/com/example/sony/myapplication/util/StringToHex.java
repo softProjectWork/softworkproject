@@ -2,7 +2,7 @@ package com.example.sony.myapplication.util;
 
 public class StringToHex {
     public static String String2Hex(String str) {
-        char []chars = "0123456789ABCDEF".toCharArray();
+        /*char []chars = "0123456789ABCDEF".toCharArray();
         StringBuilder sb = new StringBuilder("");
         byte[] bs = str.getBytes();
         int bit;
@@ -12,6 +12,7 @@ public class StringToHex {
             bit = bs[i] & 0x0F;
             sb.append(chars[bit]);
         }
-        return sb.toString().trim();
+        return sb.toString().trim();*/
+        return str;
     }
 }
