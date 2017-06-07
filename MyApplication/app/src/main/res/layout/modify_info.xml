@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@drawable/bg"
+    android:background="@drawable/create_search_modifyinfo"
     android:layout_width="match_parent" android:layout_height="match_parent">
 
     <EditText
@@ -10,7 +10,7 @@
         android:layout_marginTop="134dp"
         android:hint="请输入新昵称"
         android:background="@drawable/round_rectangle_white"
-        android:imeOptions="flagNoExtractUi"
+        android:imeOptions="actionDone"
         android:inputType="text"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
@@ -22,7 +22,7 @@
         android:layout_marginTop="39dp"
         android:hint="请输入新密码"
         android:background="@drawable/round_rectangle_white"
-        android:imeOptions="flagNoExtractUi"
+        android:imeOptions="actionDone"
         android:inputType="textPassword"
         android:layout_below="@+id/NickName"
         android:layout_alignLeft="@+id/NickName"
@@ -34,7 +34,7 @@
         android:layout_height="40dp"
         android:hint="确认密码"
         android:background="@drawable/round_rectangle_white"
-        android:imeOptions="flagNoExtractUi"
+        android:imeOptions="actionDone"
         android:inputType="textPassword"
         android:layout_marginTop="40dp"
         android:layout_below="@+id/Passwd"

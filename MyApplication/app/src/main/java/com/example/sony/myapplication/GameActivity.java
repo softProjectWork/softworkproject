@@ -321,7 +321,9 @@ public class GameActivity extends AppCompatActivity{
 
     private void startEncodeAudio() {
         amrEncoder = AmrAudioEncoder.getArmAudioEncoderInstance();
+        Log.d("initialized completed", "done");
         amrEncoder.initArmAudioEncoder(this, audioSocket);
+        Log.d("connect", "done");
         amrEncoder.start();
     }
 

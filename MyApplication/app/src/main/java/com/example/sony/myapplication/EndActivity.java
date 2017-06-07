@@ -13,7 +13,6 @@ public class EndActivity extends AppCompatActivity{
     private String token;
 
     private TextView result;
-    private TextView scoreView;
     private Button exit;
 
     @Override
@@ -61,8 +60,6 @@ public class EndActivity extends AppCompatActivity{
 
         result = (TextView)findViewById(R.id.result);
         result.setText(this.getIntent().getExtras().getString("winner") + "胜利");
-        scoreView = (TextView)findViewById(R.id.scoreView);
-        scoreView.setText("积分"+this.getIntent().getExtras().getInt("score"));
 
         exit = (Button)findViewById(R.id.exit);
         exitClickListener ecl = new exitClickListener();

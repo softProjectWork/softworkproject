@@ -10,6 +10,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.example.sony.myapplication.util.StringToHex;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -67,7 +69,7 @@ public class RegisterActivity extends AppCompatActivity {
                 JSONObject param = new JSONObject();
                 try {
                     param.put("stuId", Integer.valueOf(stuId));
-                    param.put("passWd",passWd);
+                    param.put("passWd", StringToHex.String2Hex(passWd));
                     param.put("nickName",nickName);
                 }
                 catch(JSONException e) {

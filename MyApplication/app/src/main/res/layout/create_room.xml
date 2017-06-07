@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@drawable/bg" >
+    android:background="@drawable/create_search_modifyinfo" >
 
     <EditText
         android:id="@+id/InputRoomName"
@@ -11,6 +11,7 @@
         android:background="@drawable/round_rectangle_white"
         android:layout_marginTop="153dp"
         android:ems="10"
+        android:imeOptions="actionDone"
         android:inputType="textPersonName"
         android:hint="请输入房间名称"
         android:layout_alignParentTop="true"

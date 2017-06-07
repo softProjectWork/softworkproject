@@ -3,18 +3,19 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg"
+    android:background="@drawable/login"
     android:weightSum="1">
 
     <TextView
-        android:layout_width="200dp"
-        android:layout_height="26dp"
+        android:layout_width="240dp"
+        android:layout_height="50dp"
+        android:textAlignment="center"
         android:text="北大校园版狼人杀"
         android:textColor="#FFFFFF"
         android:id="@+id/textview"
         android:textSize="25sp"
-        android:layout_marginTop="81dp"
-        android:layout_alignParentTop="true"
+        android:layout_marginBottom="45dp"
+        android:layout_above="@+id/Passwd"
         android:layout_centerHorizontal="true" />
 
     <EditText
@@ -25,9 +26,9 @@
         android:id="@+id/StuID"
         android:hint="学号"
         android:background="@drawable/round_rectangle_white"
-        android:imeOptions="flagNoExtractUi"
-        android:layout_marginTop="34dp"
-        android:layout_below="@+id/textview"
+        android:imeOptions="actionDone"
+        android:layout_marginTop="150dp"
+        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
     <EditText
@@ -37,7 +38,7 @@
         android:id="@+id/Passwd"
         android:hint="密码"
         android:background="@drawable/round_rectangle_white"
-        android:imeOptions="flagNoExtractUi"
+        android:imeOptions="actionDone"
         android:layout_below="@+id/StuID"
         android:layout_alignLeft="@+id/StuID"
         android:layout_alignStart="@+id/StuID"

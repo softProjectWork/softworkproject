@@ -12,6 +12,7 @@ import java.net.Socket;
 import android.app.Activity;
 import android.media.MediaPlayer;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 //blog.csdn.net/zgyulongfei
@@ -25,7 +26,7 @@ public class AmrAudioPlayer {
     private long alreadyReadByteCount = 0;
 
     private MediaPlayer audioPlayer;
-    private Handler handler = new Handler();
+    //private Handler handler = new Handler();
 
     private final String cacheFileName = "audioCacheFile";
     private File cacheFile;
@@ -57,6 +58,8 @@ public class AmrAudioPlayer {
     public void initAmrAudioPlayer(Activity activity, Socket downSock) {
         this.activity = activity;
         this.downSocket = downSock;
+        //Looper.prepare();
+        //handler = new Handler();
         deleteExistCacheFile();
         initCacheFile();
     }
@@ -95,7 +98,7 @@ public class AmrAudioPlayer {
         releaseAudioPlayer();
         deleteExistCacheFile();
         cacheFile = null;
-        handler = null;
+        //handler = null;
     }
 
     private void releaseAudioPlayer() {
@@ -225,7 +228,8 @@ public class AmrAudioPlayer {
                         }
                     }
                 };
-                handler.post(r);
+                r.run();
+                //handler.post(r);
             }
         }
 
@@ -320,7 +324,8 @@ public class AmrAudioPlayer {
                         }
                     }
                 };
-                handler.post(r);
+                r.run();
+                //handler.post(r);
             }
         }
 

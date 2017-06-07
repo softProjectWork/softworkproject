@@ -4,12 +4,15 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.io.OutputStream;
+import java.io.File;
+import java.util.jar.Manifest;
 
 import android.app.Activity;
 import android.media.MediaRecorder;
 import android.net.LocalServerSocket;
 import android.net.LocalSocket;
 import android.net.LocalSocketAddress;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -54,27 +57,23 @@ public class AmrAudioEncoder {
 
     public void start() {
         if (activity == null) {
-            showToastText("闊抽缂栫爜鍣ㄦ湭鍒濆鍖栵紝璇峰厛鎵цinit鏂规硶");
             return;
         }
 
         if (isAudioRecording) {
-            showToastText("闊抽宸茬粡寮�濮嬬紪鐮侊紝鏃犻渶鍐嶆缂栫爜");
             return;
         }
 
         if (!initLocalSocket()) {
-            showToastText("鏈湴鏈嶅姟寮�鍚け璐�");
             releaseAll();
             return;
         }
 
         if (!initAudioRecorder()) {
-            showToastText("闊抽缂栫爜鍣ㄥ垵濮嬪寲澶辫触");
             releaseAll();
             return;
         }
-
+        Log.d("audio start", "done");
         this.isAudioRecording = true;
         startAudioRecording();
     }
@@ -82,6 +81,7 @@ public class AmrAudioEncoder {
     private boolean initLocalSocket() {
         boolean ret = true;
         try {
+            Log.d("local socket", "set");
             releaseLocalSocket();
 
             String serverName = "armAudioServer";
@@ -97,6 +97,7 @@ public class AmrAudioEncoder {
             sender = lss.accept();
             sender.setReceiveBufferSize(bufSize);
             sender.setSendBufferSize(bufSize);
+            Log.d("local socket", "done");
         } catch (IOException e) {
             ret = false;
         }
@@ -104,28 +105,52 @@ public class AmrAudioEncoder {
     }
 
     private boolean initAudioRecorder() {
+        Log.d("AudioInitial", "start");
         if (audioRecorder != null) {
             audioRecorder.reset();
             audioRecorder.release();
         }
         audioRecorder = new MediaRecorder();
+
+        ActivityCompat.requestPermissions(activity,new String[]{android.Manifest.permission.RECORD_AUDIO,android.Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
         audioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        //audioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         audioRecorder.setOutputFormat(MediaRecorder.OutputFormat.RAW_AMR);
         final int mono = 1;
         audioRecorder.setAudioChannels(mono);
         audioRecorder.setAudioSamplingRate(8000);
         audioRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-        audioRecorder.setOutputFile(sender.getFileDescriptor());
-
+        try {
+            audioRecorder.setOutputFile(sender.getFileDescriptor());
+            //File file=new File("/mnt/sdcard/a.txt");//创建文件
+            /*if(!file.exists()){
+                try {
+                    file.createNewFile();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+            audioRecorder.setOutputFile("/mnt/sdcard/a.txt");
+            if (sender.getFileDescriptor() == null) Log.d("descripter", "fake");*/
+        } catch (Exception e){
+            Log.d("Output descriptor", "failed");
+        }
+        Log.d("audio initial", "medium");
         boolean ret = true;
         try {
+            Log.d("audio prepare", "start");
             audioRecorder.prepare();
+            Log.d("audio start", "start");
             audioRecorder.start();
+            Log.d("audio start", "end");
         } catch (Exception e) {
+            Log.d("audio start", "failed");
+            e.printStackTrace();
             releaseMediaRecorder();
-            showToastText("鎵嬫満涓嶆敮鎸佸綍闊虫鍔熻兘");
             ret = false;
         }
+        Log.d("audio initial", "end");
         return ret;
     }
 
@@ -186,10 +211,6 @@ public class AmrAudioEncoder {
         return isAudioRecording;
     }
 
-    private void showToastText(String msg) {
-        Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show();
-    }
-
     private class AudioCaptureAndSendThread implements Runnable {
         public void run() {
             try {
@@ -200,6 +221,7 @@ public class AmrAudioEncoder {
         }
 
         private void sendAmrAudio() throws Exception {
+            Log.d("start Audio Thread", "done");
             DataInputStream dataInput = new DataInputStream(receiver.getInputStream());
             skipAmrHead(dataInput);
 
@@ -208,6 +230,7 @@ public class AmrAudioEncoder {
             final int BLOCK_SIZE[] = { 12, 13, 15, 17, 19, 20, 26, 31, 5, 0, 0, 0, 0, 0, 0, 0 };
 
             byte[] sendBuffer = new byte[1024];
+            Log.d("start Recording", "done");
             while (isAudioRecording()) {
                 int offset = 0;
                 for (int index = 0; index < SEND_FRAME_COUNT_ONE_TIME; ++index) {
@@ -222,6 +245,7 @@ public class AmrAudioEncoder {
                 }
                 upSend(upSocket, sendBuffer, offset);
             }
+            Log.d("finish Recording", "done");
             upSocket.close();
             dataInput.close();
             releaseAll();

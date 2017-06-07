@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/night"
+    android:id="@+id/game"
     android:layout_width="match_parent" android:layout_height="match_parent">
 
     <TextView
@@ -293,6 +294,7 @@
         android:layout_height="wrap_content"
         android:background="#00000000"
         android:textSize="25sp"
+        android:textColor="#FFFFFF"
         android:layout_below="@+id/imageButton9"
         android:layout_centerHorizontal="true" />
 
