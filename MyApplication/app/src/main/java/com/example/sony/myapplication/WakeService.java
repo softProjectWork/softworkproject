@@ -25,7 +25,7 @@ import com.example.sony.myapplication.util.FirstEvent;
 
 public class WakeService extends Service{
 
-    private final int PLAYER_NUM = 3;
+    private final int PLAYER_NUM = 6;
 
     private static Binder mBinder;
     private static String TAG = "WakeService";

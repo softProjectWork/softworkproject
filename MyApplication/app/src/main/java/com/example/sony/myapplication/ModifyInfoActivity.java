@@ -10,8 +10,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.example.sony.myapplication.util.StringToHex;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -85,7 +83,7 @@ public class ModifyInfoActivity extends AppCompatActivity {
                 JSONObject param = new JSONObject();
                 try {
                     param.put("stuId", Integer.valueOf(stuId));
-                    param.put("passWd", StringToHex.String2Hex(passWd));
+                    param.put("passWd",passWd);
                     param.put("nickName",NickName);
                     param.put("token",token);
                 }
@@ -98,7 +96,7 @@ public class ModifyInfoActivity extends AppCompatActivity {
                 new AsyncTask<Void, Void, String>() {
                     @Override
                     protected String doInBackground(Void... params) {
-                        String strUrl = "http://162.105.175.115:8005/clientCall/login.php";
+                        String strUrl = "http://162.105.175.115:8005/clientCall/modify.php";
                         URL url = null;
                         try {
                             url = new URL(strUrl);
@@ -149,16 +147,26 @@ public class ModifyInfoActivity extends AppCompatActivity {
                             Log.d("response",buffer.toString());
 
                             if (urlConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                                new AlertDialog.Builder(ModifyInfoActivity.this)
-                                        .setMessage("修改成功")
-                                        .setPositiveButton("确定",null)
-                                        .show();
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        new AlertDialog.Builder(ModifyInfoActivity.this)
+                                                .setMessage("修改成功")
+                                                .setPositiveButton("确定",null)
+                                                .show();
+                                    }
+                                });
                             }
                             else {
-                                new AlertDialog.Builder(ModifyInfoActivity.this)
-                                        .setMessage("修改失败")
-                                        .setPositiveButton("确定",null)
-                                        .show();
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        new AlertDialog.Builder(ModifyInfoActivity.this)
+                                                .setMessage("修改失败")
+                                                .setPositiveButton("确定",null)
+                                                .show();
+                                    }
+                                });
                             }
 
                         }

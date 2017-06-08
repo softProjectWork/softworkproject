@@ -10,8 +10,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.example.sony.myapplication.util.StringToHex;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -69,7 +67,7 @@ public class RegisterActivity extends AppCompatActivity {
                 JSONObject param = new JSONObject();
                 try {
                     param.put("stuId", Integer.valueOf(stuId));
-                    param.put("passWd", StringToHex.String2Hex(passWd));
+                    param.put("passWd",passWd);
                     param.put("nickName",nickName);
                 }
                 catch(JSONException e) {
@@ -81,7 +79,7 @@ public class RegisterActivity extends AppCompatActivity {
                 new AsyncTask<Void, Void, String>() {
                     @Override
                     protected String doInBackground(Void... params) {
-                        String strUrl = "162.105.175.115/backend/clientCall/login.php";
+                        String strUrl = "http://162.105.175.115:8005/clientCall/signup.php";
                         URL url = null;
                         try {
                             url = new URL(strUrl);
@@ -111,41 +109,32 @@ public class RegisterActivity extends AppCompatActivity {
 
                             OutputStream out = urlConn.getOutputStream();
                             BufferedWriter dop = new BufferedWriter(new OutputStreamWriter(out) );
-                            //dop.writeBytes("json="+content);
-                            dop.write(content);
+                            dop.write("json=" + content);
                             dop.flush();
                             out.close();
                             dop.close();
 
-                            /*InputStream is = urlConn.getInputStream();
-                            urlConn.disconnect();
                             if (urlConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                                new AlertDialog.Builder(RegisterActivity.this)
-                                        .setMessage("邮件已发送，请登录学号邮箱激活")
-                                        .setPositiveButton("确定",null)
-                                        .show();
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        new AlertDialog.Builder(RegisterActivity.this)
+                                                .setMessage("邮件已发送，请登录学号邮箱激活")
+                                                .setPositiveButton("确定",null)
+                                                .show();
+                                    }
+                                });
                             }
                             else {
-                                new AlertDialog.Builder(RegisterActivity.this)
-                                        .setMessage("注册失败")
-                                        .setPositiveButton("确定",null)
-                                        .show();
-                            }*/
-
-                            if (urlConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                                InputStream in = urlConn.getInputStream();
-                                BufferedReader br = new BufferedReader(new InputStreamReader(in));
-                                String str;
-                                StringBuilder buffer = new StringBuilder();
-                                if ((str = br.readLine()) != null) {
-                                    buffer.append(str);
-                                }
-                                in.close();
-                                br.close();
-
-                                JSONObject rjson = new JSONObject(buffer.toString());
-                                Log.d("response", "rjson = " + rjson);
-                                Log.d("note", "返回成功");
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        new AlertDialog.Builder(RegisterActivity.this)
+                                                .setMessage("注册失败")
+                                                .setPositiveButton("确定",null)
+                                                .show();
+                                    }
+                                });
                             }
                         }
                         catch (Exception e){

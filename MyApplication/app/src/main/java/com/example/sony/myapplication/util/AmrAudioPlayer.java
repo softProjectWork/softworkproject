@@ -87,7 +87,9 @@ public class AmrAudioPlayer {
     public void start() {
         isPlaying = true;
         isChaingCacheToAnother = false;
+        Log.d("audio player", "begin");
         setHasMovedTheCacheToAnotherCache(false);
+        Log.d("audio player", "cached");
         new Thread(new NetAudioPlayerThread()).start();
     }
 
@@ -125,13 +127,14 @@ public class AmrAudioPlayer {
 
     private class NetAudioPlayerThread implements Runnable {
         // 浠庢帴鍙楁暟鎹紑濮嬭绠楋紝褰撶紦瀛樺ぇ浜嶪NIT_BUFFER_SIZE鏃跺�欏紑濮嬫挱鏀�
-        private final int INIT_AUDIO_BUFFER = 2 * 1024;
+        private final int INIT_AUDIO_BUFFER = 128;
         // 鍓�1绉掔殑鏃跺�欐挱鏀炬柊鐨勭紦瀛樼殑闊充箰
         private final int CHANGE_CACHE_TIME = 1000;
 
         public void run() {
             try {
                 Socket socket = downSocket;
+                Log.d("audio player", "play");
                 receiveNetAudioThenPlay(socket);
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage() + "浠庢湇鍔＄鎺ュ彈闊抽澶辫触銆傘�傘��");
@@ -144,21 +147,27 @@ public class AmrAudioPlayer {
 
             final int BUFFER_SIZE = 100 * 1024;// 100kb buffer size
             byte[] buffer = new byte[BUFFER_SIZE];
+            Log.d("audio player", "");
 
-            // 鏀堕泦浜�10*350b浜嗕箣鍚庢墠寮�濮嬫洿鎹㈢紦瀛�
             int testTime = 10;
             try {
+                Log.d("audio player", "middle");
                 alreadyReadByteCount = 0;
                 while (isPlaying) {
+                    Log.d("audio player", "read");
                     int numOfRead = inputStream.read(buffer);
+                    Log.d("audio player", "readend + num = " + Integer.toString(numOfRead));
                     if (numOfRead <= 0) {
-                        break;
+                        Log.d("audio recv", "success");
+                        continue;
+                        //break;
                     }
                     alreadyReadByteCount += numOfRead;
+                    Log.d("audio player", "trans");
                     outputStream.write(buffer, 0, numOfRead);
                     outputStream.flush();
                     try {
-                        if (testTime++ >= 10) {
+                        if (testTime++ >= 1) {
                             Log.e(TAG, "cacheFile=" + cacheFile.length());
                             testWhetherToChangeCache();
                             testTime = 0;
@@ -169,17 +178,13 @@ public class AmrAudioPlayer {
 
                     // 濡傛灉澶嶅埗浜嗘帴鏀剁綉缁滄祦鐨刢ache锛屽垯鎵ц姝ゆ搷浣�
                     if (hasMovedTheCacheToAnotherCache() && !isChaingCacheToAnother) {
-                        if (outputStream != null) {
-                            outputStream.close();
-                            outputStream = null;
-                        }
                         // 灏嗘帴鏀剁綉缁滄祦鐨刢ache鍒犻櫎锛岀劧鍚庨噸0寮�濮嬪瓨鍌�
                         // initCacheFile();
                         outputStream = new FileOutputStream(cacheFile);
                         setHasMovedTheCacheToAnotherCache(false);
                         alreadyReadByteCount = 0;
                     }
-
+                    Log.d("audio player", "later");
                 }
             } catch (Exception e) {
                 errorOperator();
@@ -188,17 +193,6 @@ public class AmrAudioPlayer {
                 throw new Exception("socket disconnect....");
             } finally {
                 buffer = null;
-                if (socket != null) {
-                    socket.close();
-                }
-                if (inputStream != null) {
-                    inputStream.close();
-                    inputStream = null;
-                }
-                if (outputStream != null) {
-                    outputStream.close();
-                    outputStream = null;
-                }
                 stop();
             }
         }
@@ -273,11 +267,9 @@ public class AmrAudioPlayer {
                 throw new IOException("moveFile error.. in moveFile() fun.");
             } finally {
                 if (reader != null) {
-                    reader.close();
                     reader = null;
                 }
                 if (writer != null) {
-                    writer.close();
                     writer = null;
                 }
             }

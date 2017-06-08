@@ -12,7 +12,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:textSize="20sp"
-        android:textColor="#FFFFFF"
+        android:textColor="#FF0000"
         android:gravity="center_horizontal"
         android:text="系统信息"
         android:layout_marginTop="81dp"/>
